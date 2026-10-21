@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0A0A0A" />
     <link rel="icon" href="data:," />
     <title>All About IT</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -309,12 +310,14 @@
         display:inline-flex; align-items:center; gap:7px; text-decoration:none; overflow-wrap:anywhere;
         border:1px solid var(--border); border-radius:999px; padding:8px 14px;
         font-size:13.5px; font-weight:600; color:#fff; min-height:44px;
-        transition:background .15s ease,border-color .15s ease;
+        transition:background .15s ease,border-color .15s ease,transform .12s ease;
       }
       .res-link:hover{ background:rgba(255,255,255,.07); border-color:rgba(255,255,255,.3); }
+      .res-link:active{ transform:scale(.97); }
       .quiz{ margin-top:18px; border-top:1px solid var(--border-soft); padding-top:16px; }
       .quiz-title{ font-size:12.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--text-3); margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; gap:10px; }
       .quiz-score{ color:#fff; letter-spacing:0; text-transform:none; font-size:13px; }
+      .quiz-score.tick{ animation:readout-tick .22s ease-out; }
       .q{ margin-bottom:16px; }
       .q:last-child{ margin-bottom:0; }
       .q p{ font-weight:600; margin-bottom:9px; font-size:15px; }
@@ -379,10 +382,13 @@
       #back-to-top.show{ opacity:1; visibility:visible; pointer-events:auto; transform:none; }
       #back-to-top:hover{ border-color:rgba(255,255,255,.6); }
       #back-to-top:focus-visible{ outline:2px solid #fff; outline-offset:3px; }
+      #back-to-top .btt-ring{ position:absolute; top:50%; left:50%; width:44px; height:44px; transform:translate(-50%,-50%); pointer-events:none; }
+      #back-to-top .btt-arc{ transition:stroke-dashoffset .12s linear; }
       @media (prefers-reduced-motion: reduce){
         #back-to-top{ transition:none; }
+        #back-to-top .btt-arc{ transition:none; }
         .opt{ transition:none; }
-        .q-why.show, .predict-card.predict-live .predict-answer.shown, .bin-readout .num.tick, .opt.correct, .jump-flash::after{ animation:none !important; }
+        .q-why.show, .predict-card.predict-live .predict-answer.shown, .bin-readout .num.tick, .quiz-score.tick, .opt.correct, .jump-flash::after{ animation:none !important; }
       }
 
       /* ---------- reveal on scroll (JS-gated: no JS = fully visible) ---------- */
@@ -396,7 +402,7 @@
       /* ---------- split-heading rise-in (JS-gated) ---------- */
       .sw{ display:inline-block; overflow:hidden; vertical-align:bottom; padding-bottom:.09em; margin-bottom:-.09em; }
       .swi{ display:inline-block; transform:translateY(115%); transition:transform .85s cubic-bezier(.22,.61,.36,1); will-change:transform; }
-      .played .swi{ transform:none; }
+      .played .swi{ transform:none; will-change:auto; }
 
       /* ---------- hero scroll hint ---------- */
       .scroll-hint{ display:flex; flex-direction:column; align-items:center; gap:9px; margin:28px auto 2px; color:var(--text-3); font-size:11.5px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; transition:opacity .45s ease, transform .45s ease, visibility 0s; }
@@ -418,13 +424,17 @@
       .pdf-card p{ margin:0; }
       .pdf-btn{ display:inline-flex; align-items:center; gap:9px; background:#fff; color:#0A0A0A; font-weight:700; font-size:15px; text-decoration:none; border:1px solid #fff; border-radius:999px; padding:13px 22px; min-height:48px; flex:none; transition:transform .15s ease; }
       .pdf-btn:hover{ transform:translateY(-1px); }
+      .pdf-btn:active{ transform:scale(.97); }
 
       /* ---------- courses-by-topic directory ---------- */
       .dir-group{ margin-top:24px; }
       .dir-group > h3{ margin:0 0 6px; font-size:16.5px; }
       .dir-entry{ display:flex; flex-wrap:wrap; gap:6px 18px; align-items:baseline; justify-content:space-between; padding:12px 0; border-top:1px solid var(--border-soft); }
       .dir-main{ flex:1 1 300px; min-width:0; }
-      .dir-name{ color:#fff; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px; }
+      /* tap target: the name link's text line is only ~26px tall, so invisible
+         padding grows the hit area to ~44px; the equal negative margins cancel
+         it in layout, so the card's visible spacing does not move at all */
+      .dir-name{ color:#fff; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px; padding:9px 2px; margin:-9px -2px; }
       .dir-name:hover{ text-decoration:underline; }
       .dir-main p{ color:var(--text-2); font-size:14px; margin:3px 0 0; }
       .dir-meta{ display:flex; gap:6px; flex-wrap:wrap; }
@@ -460,8 +470,45 @@
       .shelf-cat{ margin:32px 0 12px; font-size:19px; scroll-margin-top:84px; }
       .dir-group{ scroll-margin-top:84px; }
 
+      /* ---------- render performance: skip off-screen static content ----------
+         content-visibility:auto defers layout/paint of these long, static
+         sections until they near the viewport (big first-load win on low-end
+         phones). Pure CSS, progressive enhancement: content stays in the DOM,
+         fully visible with JS off, findable via find-in-page, and exposed to
+         assistive tech exactly as before. contain-intrinsic-size reserves a
+         per-section size estimate while skipped (the `auto` keyword swaps in
+         the real measured size after the first render) so the scrollbar and
+         anchor landings stay honest. Applied ONLY to: the 8 course lesson
+         bodies, the course directory category groups, the Bookshelf entries,
+         and the three guide Reference sections. Nothing interactive (quizzes,
+         the sandbox, the drawer, header, hero) is touched. */
+      .lesson-block{ content-visibility:auto; contain-intrinsic-size:auto 2800px; }
+      .dir-group{ content-visibility:auto; contain-intrinsic-size:auto 560px; }
+      .shelf-card{ content-visibility:auto; contain-intrinsic-size:auto 240px; }
+      #g-cheat{ content-visibility:auto; contain-intrinsic-size:auto 1800px; }
+      #g-careers{ content-visibility:auto; contain-intrinsic-size:auto 600px; }
+      #g-glossary{ content-visibility:auto; contain-intrinsic-size:auto 1600px; }
+      /* print: force every section to render so nothing is ever missing
+         from a printed / saved-PDF copy */
+      @media print{
+        .lesson-block, .dir-group, .shelf-card, #g-cheat, #g-careers, #g-glossary{ content-visibility:visible; }
+      }
+
       /* ---------- sticky section headers (guide) ---------- */
-      #view-guide .sec-head{ position:sticky; top:68px; z-index:30; background:var(--bg); padding-top:12px; padding-bottom:10px; }
+      #view-guide .sec-head{ position:sticky; top:68px; z-index:30; background:var(--bg); padding-top:12px; padding-bottom:10px; border-bottom:1px solid transparent; transition:border-color .25s ease, box-shadow .25s ease; }
+      #view-guide .sec-head.stuck{ border-bottom-color:var(--border-soft); box-shadow:0 10px 28px rgba(0,0,0,.35); }
+
+      /* ---------- scroll-target highlight (guide) ---------- */
+      /* Brief underline glow on the heading a jump lands on, so the eye finds
+         where the scroll stopped. JS adds .target-hit only; the animation is
+         box-shadow color/alpha only — no transform, no layout shift — and it
+         ends fully transparent, leaving no trace. */
+      #view-guide .sec-head.target-hit{ animation:target-hit 1.2s ease-out; }
+      @keyframes target-hit{
+        0%{ box-shadow:inset 0 -2px 0 rgba(255,255,255,0), 0 14px 30px rgba(255,255,255,0); }
+        30%{ box-shadow:inset 0 -2px 0 rgba(255,255,255,.55), 0 14px 30px rgba(255,255,255,.07); }
+        100%{ box-shadow:inset 0 -2px 0 rgba(255,255,255,0), 0 14px 30px rgba(255,255,255,0); }
+      }
 
       /* ---------- boot-sequence overlay ---------- */
       #boot{ position:fixed; inset:0; z-index:400; display:none; align-items:flex-start; justify-content:center; padding:92px 16px 16px; background:rgba(10,10,10,.85); }
@@ -481,6 +528,8 @@
         .mouse::after{ animation:none; }
         .scroll-hint{ transition:none; }
         #boot{ display:none !important; }
+        #view-guide .sec-head{ transition:none; }
+        #view-guide .sec-head.target-hit{ animation:none; }
       }
 
       /* ---------- terminal & IT-object decorations ---------- */
@@ -693,7 +742,9 @@
         display:inline-flex; align-items:center; min-height:44px; margin-top:14px;
         font:inherit; font-size:14.5px; font-weight:600; color:#0A0A0A;
         background:#fff; border:1px solid #fff; border-radius:999px; padding:10px 18px; cursor:pointer;
+        transition:transform .12s ease;
       }
+      .predict-card.predict-live .predict-btn:active{ transform:scale(.97); }
       .predict-card.predict-live .predict-btn:focus-visible{ outline:2px solid #fff; outline-offset:3px; }
       .predict-card.predict-live .predict-answer{ display:none; }
       .predict-card.predict-live .predict-answer.shown{ display:block; animation:fb-in .26s ease-out both; }
@@ -712,6 +763,7 @@
     <div id="cursor-ring" aria-hidden="true"></div>
     <div id="scroll-progress" aria-hidden="true"></div>
     <button id="back-to-top" type="button" aria-label="Back to top">
+      <svg class="btt-ring" width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="20" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="2"/><circle class="btt-arc" cx="22" cy="22" r="20" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-dasharray="125.66" stroke-dashoffset="125.66" transform="rotate(-90 22 22)"/></svg>
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 15 7-7 7 7"/></svg>
     </button>
 
@@ -944,7 +996,7 @@
             <p class="muted">One job, eight languages. The pattern never changes: a command, the text in quotes, and the words on screen. New words are explained on every card.</p>
             <div class="grid cols-2">
 
-              <div class="card">
+              <div class="card hw-card">
                 <span class="tag">Programming language</span>
                 <h3 style="margin-top:10px;">Python</h3>
                 <p class="code-label" style="margin-top:14px;">The code</p>
@@ -954,7 +1006,7 @@
                 <div class="hw-out">Hello, World!</div>
               </div>
 
-              <div class="card">
+              <div class="card hw-card">
                 <span class="tag">Programming language</span>
                 <h3 style="margin-top:10px;">JavaScript</h3>
                 <p class="code-label" style="margin-top:14px;">The code</p>
@@ -964,7 +1016,7 @@
                 <div class="hw-out">Hello, World!</div>
               </div>
 
-              <div class="card">
+              <div class="card hw-card">
                 <span class="tag">Markup — not a programming language</span>
                 <h3 style="margin-top:10px;">HTML</h3>
                 <p class="code-label" style="margin-top:14px;">The code</p>
@@ -974,7 +1026,7 @@
                 <div class="hw-out"><span class="hw-big">Hello, World!</span></div>
               </div>
 
-              <div class="card">
+              <div class="card hw-card">
                 <span class="tag">Styling — it does not print</span>
                 <h3 style="margin-top:10px;">CSS</h3>
                 <p class="code-label" style="margin-top:14px;">The code</p>
@@ -986,7 +1038,7 @@
                 <div class="hw-out">Every h1 heading turns white.</div>
               </div>
 
-              <div class="card">
+              <div class="card hw-card">
                 <span class="tag">Database language</span>
                 <h3 style="margin-top:10px;">SQL</h3>
                 <p class="code-label" style="margin-top:14px;">The code</p>
@@ -996,7 +1048,7 @@
                 <div class="hw-out">Hello, World!</div>
               </div>
 
-              <div class="card">
+              <div class="card hw-card">
                 <span class="tag">Programming language</span>
                 <h3 style="margin-top:10px;">Java</h3>
                 <p class="code-label" style="margin-top:14px;">The code</p>
@@ -1010,7 +1062,7 @@
                 <div class="hw-out">Hello, World!</div>
               </div>
 
-              <div class="card">
+              <div class="card hw-card">
                 <span class="tag">Programming language</span>
                 <h3 style="margin-top:10px;">C</h3>
                 <p class="code-label" style="margin-top:14px;">The code</p>
@@ -1025,7 +1077,7 @@ int main() {
                 <div class="hw-out">Hello, World!</div>
               </div>
 
-              <div class="card">
+              <div class="card hw-card">
                 <span class="tag">Programming language · websites</span>
                 <h3 style="margin-top:10px;">PHP</h3>
                 <p class="code-label" style="margin-top:14px;">The code</p>
@@ -1041,17 +1093,22 @@ int main() {
           </div>
 
           <div class="section">
-            <div class="card">
+            <div class="card hw-cta">
               <span class="tag">Try it yourself</span>
               <h3 style="margin:10px 0 4px;">Your turn — in the coding box</h3>
               <p class="muted">Reading code is step one; typing it is where it sticks. The guide has a live coding box: type HTML on one side, see the page on the other, instantly. The button below opens it with a <code>&lt;h1&gt;Hello, World!&lt;/h1&gt;</code> page already inside.</p>
               <p style="margin:16px 0 14px;"><button type="button" class="pdf-btn" id="hw-try">Open the coding box</button></p>
-              <p style="margin:0;"><strong>Mini challenge:</strong> Change the text to your own name — that is your first edit as a programmer.</p>
+              <p style="margin:0 0 8px;"><strong>Mini challenge — 3 steps:</strong></p>
+              <ol class="clean" style="margin-bottom:0;">
+                <li class="hw-step">Change the heading to your own name — that is your first edit as a programmer.</li>
+                <li class="hw-step">Make it bigger: in the <code>&lt;style&gt;</code> box, find <code>h1 { font-size: 32px; }</code> and change 32 to 60 — you just styled a page with CSS.</li>
+                <li class="hw-step">Add your own line: under the <code>&lt;p&gt;</code> paragraph, type <code>&lt;p&gt;I made this page.&lt;/p&gt;</code> — every tag pair you add appears instantly in the preview.</li>
+              </ol>
             </div>
           </div>
 
           <div class="section">
-            <div class="callout">
+            <div class="callout hw-cta">
               <h3>What next?</h3>
               <p class="muted">You just read real code in eight languages. Keep the streak going:</p>
               <ul class="clean">
@@ -1214,7 +1271,7 @@ int main() {
             </div>
             <p class="small">*Everyday labels use powers of 1,000; computers count in powers of 1,024 (1 KiB = 1,024 bytes). That&rsquo;s why a &ldquo;500 GB&rdquo; drive shows up slightly smaller in your OS.</p>
 
-            <div class="card" id="binary-playground" style="margin-top:18px;">
+            <div class="card rv-late" id="binary-playground" style="margin-top:18px;">
               <h3>Try it: build a number in binary</h3>
               <p class="muted">Tap the bits to switch them on or off. Each position is worth double the one before it — add up the &ldquo;on&rdquo; positions and you get the number. This is exactly how a computer counts.</p>
               <div class="bits" id="bits" role="group" aria-label="Binary bits"></div>
@@ -1842,32 +1899,52 @@ SELECT COUNT(*) FROM students;           <span class="cm">-- count rows</span></
               </div>
             </div>
             <dl class="gloss">
+              <div><dt>ASCII</dt><dd>The original numbering scheme that turns characters into numbers — in ASCII the letter 'A' is 65. It covers 128 characters: English letters, digits, and basic symbols. Older and smaller than Unicode, but still everywhere.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> ang pinakaunang sistema ng pag-numero sa mga letra — ang 'A' ay 65; 128 na karakter lang: mga letrang Ingles, numero, at simpleng simbolo</dd></div>
               <div><dt>Algorithm</dt><dd>A step-by-step recipe for solving a problem — the logic behind code.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> hakbang-hakbang na proseso na sinusunod ng computer para lutasin ang isang gawain</dd></div>
               <div><dt>Bandwidth</dt><dd>How much data a connection can carry per second — the &ldquo;width&rdquo; of the pipe.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> kung gaano karaming data ang kasya sa koneksyon mo kada segundo — parang lapad ng tubo</dd></div>
               <div><dt>Binary</dt><dd>The base-2 number system (0s and 1s) all computer data is written in.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> sistema ng bilang na 0 at 1 lang ang gamit — dito nakasulat ang lahat ng data ng computer</dd></div>
+              <div><dt>Browser</dt><dd>The app you open websites with — it reads a page's code (HTML, CSS, JavaScript) and draws it on your screen. Examples: Chrome, Edge, Firefox, Safari.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> ang app na pinagbubuksan mo ng websites — binabasa nito ang code ng page at ipinapakita ito sa screen; halimbawa: Chrome, Edge, Firefox, Safari</dd></div>
               <div><dt>Bug</dt><dd>A mistake in code that makes a program behave wrongly.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> mali sa code kaya hindi maayos ang takbo ng program</dd></div>
               <div><dt>Cache</dt><dd>A small, fast storage spot for data you&rsquo;ll need again soon.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> maliit at mabilis na imbakan para sa data na kakailanganin mo ulit maya-maya</dd></div>
+              <div><dt>CSS</dt><dd>A style language for web pages: it designs how things look — colors, sizes, spacing, layout. HTML builds the structure; CSS dresses it up.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> wikang pang-style ng web pages: ito ang nagdidisenyo ng itsura — kulay, laki, spacing, layout; ang HTML ang gumagawa ng istruktura, ang CSS ang nagpapaganda nito</dd></div>
               <div><dt>Cloud</dt><dd>Computing services rented over the internet, running on someone else&rsquo;s servers.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> mga serbisyong kinukuha mo online na tumatakbo sa servers ng iba, hindi sa sarili mong device</dd></div>
               <div><dt>CPU</dt><dd>The computer&rsquo;s processor — the part that does the actual calculating, repeating fetch–decode–execute billions of times per second.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> ang utak ng computer — ang bahaging gumagawa ng aktuwal na pagkuwenta, ulit-ulit nang bilyun-bilyong beses kada segundo</dd></div>
+              <div><dt>CRUD</dt><dd>The four basic moves on data — Create, Read, Update, Delete. Almost every app with data is just CRUD behind the scenes: posting something (create), showing it (read), editing it (update), removing it (delete).</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> ang apat na basic na galaw sa data — Create (gumawa), Read (basahin), Update (baguhin), Delete (burahin). Halos lahat ng app na may data, CRUD lang ang ginagawa sa likod: pag-post (create), pagpapakita (read), pag-edit (update), pagbura (delete).</dd></div>
               <div><dt>Database</dt><dd>An organized store of information — like a very strict spreadsheet — where apps keep data searchable and safe.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> organisadong imbakan ng impormasyon — parang napakahigpit na spreadsheet — kung saan iniimbak ng apps ang data para madaling hanapin at ligtas</dd></div>
               <div><dt>DNS</dt><dd>The internet&rsquo;s phonebook: turns website names into IP addresses.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> ang phonebook ng internet: ginagawang IP address ang pangalan ng website</dd></div>
               <div><dt>Encryption</dt><dd>Scrambling data so only someone with the key can read it.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> pag-scramble ng data para yung may tamang key lang ang makabasa nito</dd></div>
+              <div><dt>ER diagram</dt><dd>Entity-Relationship diagram — a drawing that plans a database before it is built: boxes for each table and lines showing how the tables connect. The blueprint of a database.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> Entity-Relationship diagram — guhit na nagpaplano ng database bago ito buuin: mga kahon para sa bawat table at mga linyang nagpapakita kung paano nag-uugnay ang mga table. Ang blueprint ng isang database.</dd></div>
               <div><dt>Firewall</dt><dd>A gatekeeper that filters network traffic by rules — blocks what shouldn&rsquo;t pass.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> bantay na nagsasala ng dumadaang data sa network — hinaharangan ang hindi dapat makapasok</dd></div>
+              <div><dt>Foreign key</dt><dd>A column in one table that points to the primary key of another table — the link between tables. The customer_id column on an orders table is a foreign key pointing at the customers table.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> isang column sa isang table na tumuturo sa primary key ng ibang table — ang nag-uugnay sa mga table. Ang customer_id column sa isang orders table ay foreign key na tumuturo sa customers table.</dd></div>
               <div><dt>Function</dt><dd>A reusable mini-program with a name: write it once (like greet(name)), then call it whenever you need it — instead of copying the same code over and over.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> munting program na may pangalan: isulat mo ito nang isang beses, tapos tawagin mo kahit kailan mo kailangan — hindi mo na kailangang kopyahin ang code nang paulit-ulit</dd></div>
+              <div><dt>Hacker</dt><dd>Someone who understands computer systems deeply. The label depends on intent: a white hat hacker tests and protects systems with written permission; a black hat hacker breaks in without permission to steal or damage things — a crime in the Philippines under RA 10175, the Cybercrime Prevention Act of 2012.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> taong may malalim na kaalaman sa computer systems — depende sa intensyon: ang white hat ay sumusubok at nagpoprotekta ng systems nang may pahintulot; ang black hat ay sumisira o nagnanakaw nang walang pahintulot — krimen ito sa Pilipinas sa ilalim ng RA 10175, ang Cybercrime Prevention Act of 2012</dd></div>
               <div><dt>HTML</dt><dd>The markup language that structures web page content.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> wikang pang-markup na bumubuo ng laman at ayos ng isang web page</dd></div>
               <div><dt>IP address</dt><dd>A unique numerical label for a device on a network.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> natatanging numerong label ng isang device sa network — parang address ng bahay nito</dd></div>
+              <div><dt>JavaScript</dt><dd>The programming language of the web page: it makes pages respond and interact — clicks, forms, animations, live updates — running in the visitor's browser.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> ang programming language ng web page: ito ang nagpapagalaw at nagpapainteraktibo sa mga pahina — pag-click, forms, animations, live updates — tumatakbo sa browser ng bumibisita</dd></div>
+              <div><dt>Join</dt><dd>Combining rows from two or more tables into one result by matching a shared column — like pairing each order with its customer name. The most-used move in real SQL queries.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> pagsasama ng mga row mula sa dalawa o higit pang table sa iisang resulta sa pamamagitan ng pagtutugma ng iisang column — halimbawa, ang pagpapares ng bawat order sa pangalan ng customer nito. Ang pinakaginagamit na galaw sa mga totoong SQL query.</dd></div>
+              <div><dt>Kernel</dt><dd>The core of an operating system — the part that talks directly to the computer's hardware. Apps never touch the CPU, memory, or devices themselves; they ask the kernel, and the kernel arranges it. Linux's kernel is shared by Linux, Android, and most servers.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> ang pinakaloob na bahagi ng operating system — ito ang direktang kumakausap sa hardware ng computer; dumadaan dito ang mga app para magamit ang CPU, memory, o devices; ang kernel ng Linux ay ginagamit din ng Android at ng maraming servers</dd></div>
               <div><dt>Latency</dt><dd>Delay — how long data takes to travel. Gamers call it &ldquo;ping.&rdquo;</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> delay — gaano katagal bago makarating ang data; &ldquo;ping&rdquo; ang tawag ng mga gamer dito</dd></div>
               <div><dt>Loop</dt><dd>Code that repeats itself: &ldquo;repeat 10 times&rdquo; (for) or &ldquo;keep going while something is true&rdquo; (while) — how programs do the same job again and again without copying the code.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> code na inuulit ang sarili: &ldquo;ulitin nang 10 beses&rdquo; (for) o &ldquo;tuloy lang habang totoo ang kondisyon&rdquo; (while) — ganito ginagawa ng program ang parehong gawain nang hindi kinakailangang kopyahin ang code</dd></div>
               <div><dt>Malware</dt><dd>Malicious software: viruses, ransomware, spyware, and friends.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> masasamang software: virus, ransomware, spyware, at iba pang nakakasira o nagnanakaw</dd></div>
+              <div><dt>Nested query</dt><dd>A query written inside another query — the inner one runs first and hands its result to the outer one. Also called a subquery.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> isang query na nakasulat sa loob ng isa pang query — ang nasa loob ang unang tumatakbo at ipinapasa ang resulta nito sa nasa labas. Tinatawag ding subquery.</dd></div>
               <div><dt>Open source</dt><dd>Software whose code anyone may read, use, and improve (Linux, Python…).</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> software na pwedeng basahin, gamitin, at ayusin ng kahit sino ang code (halimbawa: Linux, Python)</dd></div>
+              <div><dt>Octet</dt><dd>One of the four numbers in an IPv4 address — octet means eight, because each one is stored as eight bits, so every octet must be between 0 and 255.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> isa sa apat na numero ng isang IPv4 address — ibig sabihin ng octet ay walo, dahil bawat isa ay naka-imbak bilang walong bits, kaya bawat octet ay mula 0 hanggang 255</dd></div>
+              <div><dt>Operating system</dt><dd>The manager program that starts when you switch a device on and runs everything else: which apps run, where files live, how apps use the screen, keyboard, and storage. Examples: Windows, macOS, Linux, Android, iOS.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> ang manager na program na unang nagbubukas kapag binuksan mo ang device at namamahala sa lahat ng iba pa: aling apps ang tumatakbo, nasaan ang files, paano ginagamit ang screen, keyboard, at storage; halimbawa: Windows, macOS, Linux, Android, iOS</dd></div>
+              <div><dt>Packet</dt><dd>A small piece of data traveling across a network — a message is chopped into packets, each stamped with where it came from and where it is going, then reassembled at the other end.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> maliit na piraso ng data na naglalakbay sa network — hinihiwa sa packets ang isang mensahe, bawat isa ay may tatak kung saan galing at patutungo, tapos pinagbubuo muli sa dulo</dd></div>
               <div><dt>Phishing</dt><dd>A trick: a fake message that pretends to come from someone you trust (a bank, a school, a delivery company) so you hand over your password or details.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> panlilinlang: pekeng mensaheng nagpapanggap na mula sa pinagkakatiwalaan mo (bangko, paaralan, delivery company) para makuha ang password o detalye mo</dd></div>
+              <div><dt>Primary key</dt><dd>The column that gives every row in a table its own unique identity — like a student ID number. No two rows share the same primary key, so the database can always tell rows apart, even when names or other fields repeat.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> ang column na nagbibigay ng sariling natatanging pagkakakilanlan sa bawat row — tulad ng student ID number; walang dalawang row ang pareho ng primary key, kaya laging natutukoy ang bawat isa kahit magkapareho ang pangalan</dd></div>
               <div><dt>Protocol</dt><dd>An agreed set of rules for how devices communicate (TCP/IP, HTTP…).</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> napagkasunduang mga patakaran kung paano mag-usap ang mga device (halimbawa: TCP/IP, HTTP)</dd></div>
+              <div><dt>Python</dt><dd>A beginner-friendly programming language that reads almost like plain English — the language Module 3 teaches you first. Used everywhere: websites, apps, data, AI.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> sikat na programming language na halos katulad ng simpleng English — ito ang unang language na ituturo sa iyo ng kurso (Module 3); ginagamit sa websites, apps, data, at AI</dd></div>
               <div><dt>RAM</dt><dd>Fast, temporary memory for whatever the computer is currently doing.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> mabilis pero panandaliang memorya para sa ginagawa ng computer sa kasalukuyan</dd></div>
               <div><dt>Router</dt><dd>A box that connects your home network to the internet and steers traffic between networks.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> aparatong nagdudugtong ng home network mo sa internet at nagpapasya kung saan dadaan ang data papuntang ibang networks</dd></div>
               <div><dt>Server</dt><dd>A computer whose job is answering other computers&rsquo; requests.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> computer na ang trabaho ay sumagot sa mga request ng ibang computer</dd></div>
               <div><dt>SQL</dt><dd>The language used to ask and update databases.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> wikang ginagamit para magtanong at mag-update ng laman ng database</dd></div>
               <div><dt>SSD</dt><dd>A fast, long-term storage drive with no moving parts — where your files live even after the computer is turned off.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> mabilis na pangmatagalang imbakan na walang gumagalaw na parte — dito nakatira ang files mo kahit patay na ang computer</dd></div>
               <div><dt>Switch</dt><dd>A box that links the devices inside one network, so they can talk to each other directly.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> aparatong nagdudugtong ng mga device sa loob ng iisang network para direktang makapag-usap ang mga ito</dd></div>
+              <div><dt>Terminal</dt><dd>A text-based window where you type commands to control the computer directly — no buttons or menus. Also called the command line; it is where you navigate folders, run programs, and manage files and servers.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> text na bintana kung saan nagta-type ng mga utos para kontrolin ang computer — walang pindutan o menu; dito ka nagna-navigate ng folders at nagpapalista ng files</dd></div>
+              <div><dt>Transistor</dt><dd>A tiny electronic switch inside computer chips — off means 0, on means 1. Billions of them together form the hardware that runs every program.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> napakaliit na switch na elektroniko sa loob ng computer chips — patay (off) ay 0, bukas (on) ay 1; bilyun-bilyong transistors ang bumubuo ng hardware na nagpapatakbo ng bawat program</dd></div>
+              <div><dt>Truth table</dt><dd>A chart that lists every possible combination of logic inputs and the answer each one gives — the standard way to define how AND, OR, and NOT behave.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> talahanayan na naglilista ng lahat ng posibleng kumbinasyon ng logic inputs at ng sagot ng bawat isa — ito ang karaniwang paraan para ipaliwanag kung paano kumikilos ang AND, OR, at NOT</dd></div>
+              <div><dt>Unicode</dt><dd>The modern universal numbering scheme for characters — over 150,000 of them, covering nearly every writing system in the world, including Tagalog and emoji. Unicode includes all 128 ASCII characters unchanged.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> ang modernong pandaigdigang sistema ng pag-numero sa mga karakter — mahigit 150,000 karakter, kasama ang halos lahat ng wika sa mundo tulad ng Tagalog at emoji</dd></div>
               <div><dt>Variable</dt><dd>A named container in code that holds a value.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> pinangalanang lalagyan sa code na may hawak na value</dd></div>
               <div><dt>VPN</dt><dd>A private, encrypted tunnel through a public network.</dd><dd class="gloss-tl"><span class="gloss-tl-tag">Tagalog:</span> pribado at naka-encrypt na koneksyon na dumadaan sa pampublikong network</dd></div>
             </dl>
@@ -1910,7 +1987,7 @@ SELECT COUNT(*) FROM students;           <span class="cm">-- count rows</span></
               <div id="field-result" class="callout" style="display:none; margin-top:16px;"></div>
             </div>
 
-            <div class="card" style="margin-bottom:16px;">
+            <div class="card rv-late" style="margin-bottom:16px;">
               <span class="tag">Quiz</span>
               <h3 style="margin:10px 0 4px;">The general IT quiz</h3>
               <p class="muted">Eight questions covering the whole guide. See how much stuck.</p>
@@ -1968,7 +2045,7 @@ SELECT COUNT(*) FROM students;           <span class="cm">-- count rows</span></
 
           <div class="callout" style="margin-bottom:22px;">
             <h3>About certificates — the honest version</h3>
-            <p class="muted">Certificates are proof of finishing, not magic job tickets — but they&rsquo;re nice to have, so here&rsquo;s the truth per platform. <strong style="color:#fff;">freeCodeCamp</strong> certificates are genuinely free: finish the projects, claim the certificate, no payment at any point. <strong style="color:#fff;">Harvard&rsquo;s CS50</strong> courses are free to take on Harvard&rsquo;s own site, and CS50 issues its own free certificate when you complete a course; the <strong style="color:#fff;">verified certificate on edX costs money</strong> — you don&rsquo;t need it to learn. <strong style="color:#fff;">Khan Academy, MDN, SQLBolt, and The Odin Project</strong> don&rsquo;t offer certificates for this material — what you get there is skill, which is the point. <strong style="color:#fff;">W3Schools</strong> tutorials are free, but its certificates are separate paid products — optional, skip them. <strong style="color:#fff;">Cisco&rsquo;s</strong> free Skills for All courses award free digital badges; Cisco&rsquo;s proctored certification exams (like CCNA) are paid, later-career steps. <strong style="color:#fff;">Google&rsquo;s IT Support certificate</strong> on Coursera is a paid certificate program; Coursera offers financial aid to learners who qualify. <strong style="color:#fff;">TryHackMe</strong> has free rooms to start and an optional paid premium — check each learning path&rsquo;s official page for what it includes. Anyone claiming &ldquo;everything is free, certificates included&rdquo; is not telling you the whole story.</p>
+            <p class="muted">Certificates are proof of finishing, not magic job tickets — but they&rsquo;re nice to have, so here&rsquo;s the truth per platform. <strong style="color:#fff;">freeCodeCamp</strong> certificates are genuinely free: finish the projects, claim the certificate, no payment at any point. <strong style="color:#fff;">Kaggle Learn</strong> micro-courses like Intro to SQL are free and earn a free completion certificate when you finish all the lessons and exercises — you just need a free Kaggle account to run them and claim it. <strong style="color:#fff;">Harvard&rsquo;s CS50</strong> courses are free to take on Harvard&rsquo;s own site, and CS50 issues its own free certificate when you complete a course; the <strong style="color:#fff;">verified certificate on edX costs money</strong> — you don&rsquo;t need it to learn. <strong style="color:#fff;">Khan Academy, MDN, SQLBolt, and The Odin Project</strong> don&rsquo;t offer certificates for this material — what you get there is skill, which is the point. <strong style="color:#fff;">W3Schools</strong> tutorials are free, but its certificates are separate paid products — optional, skip them. <strong style="color:#fff;">Cisco&rsquo;s</strong> free Skills for All courses award free digital badges; Cisco&rsquo;s proctored certification exams (like CCNA) are paid, later-career steps. <strong style="color:#fff;">Google&rsquo;s IT Support certificate</strong> on Coursera is a paid certificate program; Coursera offers financial aid to learners who qualify. <strong style="color:#fff;">TryHackMe</strong> has free rooms to start and an optional paid premium — check each learning path&rsquo;s official page for what it includes. Anyone claiming &ldquo;everything is free, certificates included&rdquo; is not telling you the whole story.</p>
           </div>
 
           <div class="section" style="margin-bottom:26px;">
@@ -2004,8 +2081,10 @@ SELECT COUNT(*) FROM students;           <span class="cm">-- count rows</span></
               <h3>Databases &amp; SQL</h3>
               <div class="dir-entry"><div class="dir-main"><a class="dir-name" href="https://sqlbolt.com" target="_blank" rel="noopener">SQLBolt</a><p>Interactive SQL lessons with exercises that run right in your browser — no setup needed.</p></div><div class="dir-meta"><span>Beginner</span><span>Certificate: none</span></div></div>
               <div class="dir-entry"><div class="dir-main"><a class="dir-name" href="https://www.khanacademy.org/computing/computer-programming/sql" target="_blank" rel="noopener">Khan Academy — Intro to SQL</a><p>Querying and managing data with SQL, with friendly in-browser practice.</p></div><div class="dir-meta"><span>Beginner</span><span>Certificate: none</span></div></div>
+              <div class="dir-entry"><div class="dir-main"><a class="dir-name" href="https://www.kaggle.com/learn/intro-to-sql" target="_blank" rel="noopener">Kaggle Learn — Intro to SQL</a><p>Free hands-on SQL micro-course using Google BigQuery in your browser: 6 lessons with exercises, about 3 hours, and a free completion certificate. Needs a free Kaggle account.</p></div><div class="dir-meta"><span>Beginner</span><span>Certificate: free</span></div></div>
               <div class="dir-entry"><div class="dir-main"><a class="dir-name" href="https://www.w3schools.com/sql/default.asp" target="_blank" rel="noopener">W3Schools — SQL Tutorial</a><p>A quick-reference SQL tutorial with a try-it editor for every command.</p></div><div class="dir-meta"><span>Beginner</span><span>Certificate: paid (optional)</span></div></div>
               <div class="dir-entry"><div class="dir-main"><a class="dir-name" href="https://cs50.harvard.edu/sql/" target="_blank" rel="noopener">Harvard CS50 SQL — Introduction to Databases</a><p>Harvard's full course on databases: create and query tables with SQL, model real-world data, join tables with keys, and finish with a final project.</p></div><div class="dir-meta"><span>Beginner</span><span>Certificate: free from CS50 · edX verified is paid</span></div></div>
+              <div class="dir-entry"><div class="dir-main"><a class="dir-name" href="https://www.youtube.com/watch?v=HXV3zeQKqGY" target="_blank" rel="noopener">freeCodeCamp — SQL Tutorial: Full Database Course for Beginners</a><p>freeCodeCamp&rsquo;s full beginner video course: database management basics with the MySQL database system — tables and keys, CRUD queries, joins, nested queries, and database design with ER diagrams — 4 hours 20 minutes, free on YouTube with no account needed.</p></div><div class="dir-meta"><span>Beginner</span><span>Certificate: none</span></div></div>
             </div>
 
             <div class="dir-group" id="dir-web">
@@ -2028,6 +2107,8 @@ SELECT COUNT(*) FROM students;           <span class="cm">-- count rows</span></
               <div class="dir-entry"><div class="dir-main"><a class="dir-name" href="https://www.coursera.org/professional-certificates/google-it-support" target="_blank" rel="noopener">Google IT Support — Coursera</a><p>Google&rsquo;s training for entry-level IT support jobs: troubleshooting, computer hardware, networking, operating systems, and security.</p></div><div class="dir-meta"><span>Beginner</span><span>Certificate: paid (financial aid available)</span></div></div>
               <div class="dir-entry"><div class="dir-main"><a class="dir-name" href="https://openstax.org/subjects" target="_blank" rel="noopener">OpenStax — Free textbooks</a><p>Peer-reviewed college textbooks, free online and as PDFs — for the math, science, and computing subjects behind IT.</p></div><div class="dir-meta"><span>Beginner–College</span><span>Certificate: none (textbooks)</span></div></div>
               <div class="dir-entry"><div class="dir-main"><a class="dir-name" href="https://www.coursera.org/learn/build-a-computer" target="_blank" rel="noopener">Build a Modern Computer from First Principles: From Nand to Tetris — Hebrew University of Jerusalem on Coursera</a><p>Build a working computer from a single Nand gate up through CPU and machine language, in six hands-on projects using a free hardware simulator — self-contained, no previous CS knowledge required. Taught by Noam Nisan and Shimon Schocken.</p></div><div class="dir-meta"><span>Beginner</span><span>Certificate: paid (full course content free to learn)</span></div></div>
+              <div class="dir-entry"><div class="dir-main"><a class="dir-name" href="https://missing.csail.mit.edu/" target="_blank" rel="noopener">MIT — The Missing Semester of Your CS Education</a><p>MIT&rsquo;s free lecture series on the everyday tools that CS classes usually skip: the command line, text editors, Git, and debugging — lecture notes and exercises free to read, no account needed.</p></div><div class="dir-meta"><span>Beginner–Intermediate</span><span>Certificate: none</span></div></div>
+              <div class="dir-entry"><div class="dir-main"><a class="dir-name" href="https://cs50.harvard.edu/technology/" target="_blank" rel="noopener">Harvard CS50T — Understanding Technology</a><p>Harvard&rsquo;s gentle intro to technology for students who don&rsquo;t (yet) consider themselves &ldquo;computer persons&rdquo;: hardware, the internet, multimedia, security, programming, and web development, across six weeks of lectures and assignments.</p></div><div class="dir-meta"><span>Beginner</span><span>Certificate: free from CS50 &middot; edX verified is paid</span></div></div>
             </div>
 
             <div class="dir-group" id="dir-os">
@@ -2036,13 +2117,15 @@ SELECT COUNT(*) FROM students;           <span class="cm">-- count rows</span></
               <div class="dir-entry"><div class="dir-main"><a class="dir-name" href="https://www.freecodecamp.org/" target="_blank" rel="noopener">freeCodeCamp — Linux &amp; operating systems</a><p>Linux and operating-system lessons and videos inside freeCodeCamp&rsquo;s curriculum and channel.</p></div><div class="dir-meta"><span>Beginner</span><span>Certificate: none</span></div></div>
               <div class="dir-entry"><div class="dir-main"><a class="dir-name" href="https://labex.io/linuxjourney" target="_blank" rel="noopener">Linux Journey</a><p>Short, interactive lessons on the Linux command line — files, users, permissions, and how the system works — with a quick quiz after each lesson. This is the official home of the classic linuxjourney.com lessons, kept free and open source, no sign-up needed.</p></div><div class="dir-meta"><span>Beginner</span><span>Certificate: none</span></div></div>
               <div class="dir-entry"><div class="dir-main"><a class="dir-name" href="https://overthewire.org/wargames/bandit/" target="_blank" rel="noopener">OverTheWire — Bandit</a><p>A free beginner game that teaches real Linux commands — you log into levels over SSH and each level is a small puzzle about files, permissions and searching text.</p></div><div class="dir-meta"><span>Absolute beginner</span><span>Certificate: none</span></div></div>
+              <div class="dir-entry"><div class="dir-main"><a class="dir-name" href="https://pages.cs.wisc.edu/~remzi/OSTEP/" target="_blank" rel="noopener">OSTEP — Operating Systems: Three Easy Pieces</a><p>The classic free operating-systems textbook from the University of Wisconsin–Madison: how an OS schedules the CPU, manages memory, and stores files — every chapter readable free online; print copies are an optional extra.</p></div><div class="dir-meta"><span>Beginner–College</span><span>Certificate: none (free textbook)</span></div></div>
             </div>
 
             <div class="dir-group" id="dir-security">
               <h3>Cybersecurity &amp; ethical hacking</h3>
               <div class="dir-entry"><div class="dir-main"><a class="dir-name" href="https://www.netacad.com/courses/introduction-to-cybersecurity" target="_blank" rel="noopener">Cisco — Introduction to Cybersecurity</a><p>What cyber attacks are, how organizations defend against them, and what security careers look like.</p></div><div class="dir-meta"><span>Beginner</span><span>Certificate: free digital badge</span></div></div>
+              <div class="dir-entry"><div class="dir-main"><a class="dir-name" href="https://www.fortinet.com/training-certification" target="_blank" rel="noopener">Fortinet — NSE 1 to 3 (Network Security Expert)</a><p>Fortinet&rsquo;s free entry-level cybersecurity track: NSE 1 covers today&rsquo;s threat landscape and security fundamentals; NSE 2 and 3 move on to network security products and core firewall operations. Self-paced and open to everyone free of charge — complete the online course and test to earn each NSE certification.</p></div><div class="dir-meta"><span>Beginner</span><span>Certificate: free NSE certification (NSE 1&ndash;3)</span></div></div>
               <div class="dir-entry"><div class="dir-main"><a class="dir-name" href="https://tryhackme.com" target="_blank" rel="noopener">TryHackMe</a><p>Hands-on security practice in guided beginner labs — legal hacking practice on systems built for exactly that.</p></div><div class="dir-meta"><span>Beginner</span><span>Free rooms to start · premium optional · check the path page for certificates</span></div></div>
-              <div class="dir-entry"><div class="dir-main"><a class="dir-name" href="https://cylabacademy.org" target="_blank" rel="noopener">picoCTF — Carnegie Mellon University</a><p>Carnegie Mellon&rsquo;s free capture-the-flag platform for beginners — practice web, crypto, forensics and reversing challenges year-round, a safe and legal place to practice (now on Carnegie Mellon&rsquo;s free CyLab Security Academy — 500+ beginner-friendly challenges to practice).</p></div><div class="dir-meta"><span>Beginner</span><span>Certificate: none</span></div></div>
+              <div class="dir-entry"><div class="dir-main"><a class="dir-name" href="https://cylabacademy.org" target="_blank" rel="noopener">picoCTF — Carnegie Mellon University</a><p>Carnegie Mellon&rsquo;s free capture-the-flag platform for beginners — practice web, crypto, forensics and reversing challenges year-round, a safe and legal place to practice (now on Carnegie Mellon&rsquo;s free CyLab Security Academy — 500+ challenges, beginner to advanced).</p></div><div class="dir-meta"><span>Beginner</span><span>Certificate: none</span></div></div>
             </div>
           </div>
 
@@ -2825,6 +2908,15 @@ WHERE name = 'Ben';</pre>
               <p>In college, this kind of math — logic, plus <strong>sets</strong> (groups of things, like the set of all students in one class) — has its own subject name: <strong>discrete math</strong>. It sounds scary, but it is mostly what this lesson covers: yes-or-no questions and careful step-by-step reasoning. When you meet the name later, you will already know what it means.</p>
               <p class="muted"><em>Sa madaling salita:</em> ang logic ay pangangatwiran gamit ang true at false, at ang algebra ay math na may hindi pa alam na numero.</p>
 
+              <p class="sub-h">Worked example: solving for x, one move at a time</p>
+              <p>Here is a small problem in the kind of words a game would use: <strong>You need 100 points to reach the next level, and you already have 35. How many more do you need?</strong></p>
+              <p>You probably solved that in your head already. Algebra is just a careful way to write the same problem down: <strong>35 + x = 100</strong>. Here, <em>x</em> is just a name for the number you don&rsquo;t know yet — the points still missing.</p>
+              <p>There is really only <strong>one rule of algebra</strong>: whatever you do to one side of the equals sign, you must do to the other side too. That is what keeps the two sides equal.</p>
+              <p>So, take 35 away from both sides: 35 &minus; 35 + x = 100 &minus; 35. The left side simplifies to just <em>x</em> standing alone, and the right side gives the answer: <strong>x = 65</strong>.</p>
+              <p>Now check it back, the way you would check any answer: 35 + 65 = 100. It works — the two sides really are equal.</p>
+              <p>This is exactly what your Python programs do — <code>x = 100 - 35</code> is the computer &ldquo;solving for x&rdquo; by rearranging, the same move you just made.</p>
+              <p class="muted"><em>Sa madaling salita:</em> sa algebra, ilipat-lipat ang mga numero hanggang ang x na lang ang mag-isa — at kung ano ang ginawa mo sa isang side, gawin mo rin sa kabilang side.</p>
+
               <p class="sub-h">Everyday example: the umbrella decision</p>
               <p>Students make logic decisions like this every day, without noticing. Here is one, in everyday words:</p>
               <p><strong>Kung umuulan AND wala akong payong → mag-jeep ako.</strong> (&ldquo;If it is raining AND I have no umbrella → I will ride a jeep.&rdquo;)</p>
@@ -2888,7 +2980,7 @@ WHERE name = 'Ben';</pre>
 
               <div class="callout" style="margin-top:18px;">
                 <h3>Try it: predict the answer</h3>
-                <p class="muted">Four quick predictions. Decide your answer first — <em>then</em> tap the button to check yourself. Getting one wrong is fine; that is how the idea sticks.</p>
+                <p class="muted">Five quick predictions. Decide your answer first — <em>then</em> tap the button to check yourself. Getting one wrong is fine; that is how the idea sticks.</p>
                 <div class="predict-card">
                   <p style="margin:0;">A lamp is wired the AND way. Switch A is on (1) and Switch B is off (0). Is the lamp on or off?</p>
                   <button type="button" class="predict-btn" data-predict aria-expanded="false" style="min-height:46px;">Reveal the answer</button>
@@ -2921,7 +3013,15 @@ WHERE name = 'Ben';</pre>
                     <p class="muted" style="margin:6px 0 0;">Spaced practice with questions beats one long reading. The brain keeps what it recalls repeatedly — three short sessions, each with trying-it-yourself, give it three chances to hold on.</p>
                   </div>
                 </div>
-                <p class="muted" style="margin:12px 0 0;">Got all four? Then you are ready — the self-check below is this module&rsquo;s finish line.</p>
+                <div class="predict-card">
+                  <p style="margin:0;">In the worked example, 35 + x = 100. What is x — and which move finds it?</p>
+                  <button type="button" class="predict-btn" data-predict aria-expanded="false" style="min-height:46px;">Reveal the answer</button>
+                  <div class="predict-answer">
+                    <p style="margin:14px 0 0;"><strong>x = 65.</strong></p>
+                    <p class="muted" style="margin:6px 0 0;">Take 35 away from both sides of the equation — the same move on each side — and x stands alone: 100 &minus; 35 = 65.</p>
+                  </div>
+                </div>
+                <p class="muted" style="margin:12px 0 0;">Got all five? Then you are ready — the self-check below is this module&rsquo;s finish line.</p>
               </div>
             </div>
             <div class="callout" style="margin-top:16px;"><h3>Hands-on project</h3><p class="muted" style="margin:0;">The portfolio page: one simple website (Module 4 skills) that shows your quiz game, your network map, your database project, and your security audit report. This single page is what you show anyone who asks, &ldquo;so what can you do?&rdquo;</p></div>
@@ -3096,7 +3196,7 @@ WHERE name = 'Ben';</pre>
             <a class="card shelf-card" href="https://cylabacademy.org" target="_blank" rel="noopener">
               <span class="from">Capture-the-flag practice · Carnegie Mellon</span>
               <h3 style="margin-top:8px;">picoCTF</h3>
-              <p>Carnegie Mellon&rsquo;s free capture-the-flag platform for beginners — practice web, crypto, forensics and reversing challenges year-round, a safe and legal place to practice (now on Carnegie Mellon&rsquo;s free CyLab Security Academy — 500+ beginner-friendly challenges to practice). Free, no certificate.</p>
+              <p>Carnegie Mellon&rsquo;s free capture-the-flag platform for beginners — practice web, crypto, forensics and reversing challenges year-round, a safe and legal place to practice (now on Carnegie Mellon&rsquo;s free CyLab Security Academy — 500+ challenges, beginner to advanced). Free, no certificate.</p>
               <span class="visit">Visit site <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
             </a>
           </div>
@@ -3193,6 +3293,13 @@ WHERE name = 'Ben';</pre>
         }
 
         /* ---------- view switching ---------- */
+        /* Tracks whether the in-flight navigation click came from the keyboard:
+           Enter/Space activation fires click with detail 0, a mouse click with
+           detail >= 1. Capture phase, so the flag is set before any click
+           handler runs; the scroll-target highlight below reads it to decide
+           whether focus should move to the landed heading. */
+        var aaJumpKeyboard = false;
+        document.addEventListener("click", function(e){ aaJumpKeyboard = (e.detail === 0); }, true);
         var navBtns = Array.prototype.slice.call(document.querySelectorAll(".nav-btn[data-view]"));
         function showView(name, anchorId){
           document.querySelectorAll(".view").forEach(function(v){ v.classList.remove("active"); });
@@ -3200,6 +3307,7 @@ WHERE name = 'Ben';</pre>
           if (target) target.classList.add("active");
           navBtns.forEach(function(b){ b.classList.toggle("active", b.getAttribute("data-view") === name); });
           closeDrawer();
+          if (kickFx) kickFx();
           var h1El = target ? target.querySelector("h1") : null;
           var freshSplit = !!(h1El && !h1El.getAttribute("data-split"));
           playSplit(target);
@@ -3218,6 +3326,49 @@ WHERE name = 'Ben';</pre>
                 };
                 el.addEventListener("animationend", clearFlash);
                 setTimeout(clearFlash, 2000);
+              }
+              /* scroll-target highlight: once the jump lands, pulse the
+                 section's .sec-head so the eye finds the heading it stopped
+                 at. Purely additive — the class only runs the target-hit
+                 animation and is removed right after; with no JS, reduced
+                 motion, or no .sec-head the landing is exactly as before.
+                 Keyboard-triggered jumps also move focus to the heading. */
+              var hitHead = el.querySelector ? el.querySelector(".sec-head") : null;
+              if (hitHead){
+                var hitFired = false;
+                var fireHit = function(){
+                  if (hitFired) return;
+                  hitFired = true;
+                  if (aaJumpKeyboard){
+                    var hitH2 = hitHead.querySelector("h2");
+                    if (hitH2){
+                      if (!hitH2.hasAttribute("tabindex")) hitH2.setAttribute("tabindex", "-1");
+                      try { hitH2.focus({ preventScroll:true }); }
+                      catch (ignore) { hitH2.focus(); }
+                    }
+                  }
+                  if (reduceMotion) return;
+                  hitHead.classList.remove("target-hit");
+                  void hitHead.offsetWidth;
+                  hitHead.classList.add("target-hit");
+                  setTimeout(function(){ hitHead.classList.remove("target-hit"); }, 1400);
+                };
+                if (!reduceMotion && name !== "home" && typeof BOOT !== "undefined" && BOOT[name] && typeof bootEl !== "undefined" && bootEl){
+                  /* the boot overlay covers the first landing — fire as it
+                     lifts and the re-aimed scroll settles; the long timer is
+                     only a safety net if bootdone somehow never arrives */
+                  var onHitBoot = function(){
+                    document.removeEventListener("aa:bootdone", onHitBoot);
+                    setTimeout(fireHit, 200);
+                  };
+                  document.addEventListener("aa:bootdone", onHitBoot);
+                  setTimeout(function(){
+                    document.removeEventListener("aa:bootdone", onHitBoot);
+                    fireHit();
+                  }, 4600);
+                } else {
+                  setTimeout(fireHit, reduceMotion ? 120 : 500);
+                }
               }
               var jumpTo = function(){
                 el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block:"start" });
@@ -3254,6 +3405,24 @@ WHERE name = 'Ben';</pre>
             e.preventDefault();
             showView("guide", a.getAttribute("data-goto-anchor"));
           });
+        });
+        /* native in-page anchors (a pasted #g-glossary link, a hash edit):
+           the browser's own jump is untouched — this only adds the same
+           target-hit pulse on the landed guide heading, once it settles. */
+        window.addEventListener("hashchange", function(){
+          if (reduceMotion) return;
+          var hid = (window.location.hash || "").replace(/^#/, "");
+          if (!hid) return;
+          var hsec = document.getElementById(hid);
+          if (!hsec || !hsec.querySelector) return;
+          var hhead = hsec.querySelector(".sec-head");
+          if (!hhead) return;
+          setTimeout(function(){
+            hhead.classList.remove("target-hit");
+            void hhead.offsetWidth;
+            hhead.classList.add("target-hit");
+            setTimeout(function(){ hhead.classList.remove("target-hit"); }, 1400);
+          }, 350);
         });
 
         /* ---------- custom cursor (fine pointers only) ---------- */
@@ -3340,8 +3509,17 @@ WHERE name = 'Ben';</pre>
         /* ---------- quiz engine ---------- */
         function buildQuiz(container, questions, scoreEl){
           var answered = 0, correct = 0;
+          var lastScoreText = "";
           function updateScore(){
-            if (scoreEl) scoreEl.textContent = answered ? ("Score: " + correct + " / " + questions.length) : "";
+            if (!scoreEl) return;
+            var text = answered ? ("Score: " + correct + " / " + questions.length) : "";
+            if (text && text !== lastScoreText){
+              lastScoreText = text;
+              scoreEl.classList.remove("tick");
+              void scoreEl.offsetWidth;
+              scoreEl.classList.add("tick");
+            }
+            scoreEl.textContent = text;
           }
           questions.forEach(function(q){
             var qDiv = document.createElement("div");
@@ -3380,11 +3558,11 @@ WHERE name = 'Ben';</pre>
 
         var QUIZZES = {
           m1: [
-            { q:"Which part is the computer's short-term memory — fast, but wiped when power goes off?", options:["SSD","RAM","CPU","Motherboard"], answer:1, why:"RAM holds what you're working on right now. Storage (SSD/HDD) is the long-term memory that keeps files after shutdown." },
-            { q:"What are the three steps of the cycle the CPU repeats billions of times per second?", options:["Open, edit, save","Fetch, decode, execute","Copy, paste, print","Boot, login, shutdown"], answer:1, why:"Fetch an instruction from RAM, decode what it means, execute it. That loop is all computing, at enormous speed." },
-            { q:"How many bits are in one byte?", options:["4","8","16","100"], answer:1, why:"8 bits = 1 byte — roughly one character of text." },
+            { q:"Which part is the computer's short-term memory — fast, but wiped when power goes off?", options:["CPU","Motherboard","RAM","SSD"], answer:2, why:"RAM holds what you're working on right now. Storage (SSD/HDD) is the long-term memory that keeps files after shutdown." },
+            { q:"What are the three steps of the cycle the CPU repeats billions of times per second?", options:["Boot, login, shutdown","Open, edit, save","Copy, paste, print","Fetch, decode, execute"], answer:3, why:"Fetch an instruction from RAM, decode what it means, execute it. That loop is all computing, at enormous speed." },
+            { q:"How many bits are in one byte?", options:["8","4","16","100"], answer:0, why:"8 bits = 1 byte — roughly one character of text." },
             { q:"You press a key on the keyboard and a letter appears on the monitor. Put simply, what happened?", options:["The keyboard drew the letter by itself","Input went in, the CPU processed it, and output came out","The monitor remembered the letter from before","Wi-Fi carried the letter to the screen"], answer:1, why:"That's the input → process → output flow every computer follows: keyboard (input), CPU (processing), monitor (output)." },
-            { q:"Your laptop gets very slow with many heavy apps open at once, but is fine with just two or three. What's most likely full?", options:["The SSD","RAM","The screen","The charger"], answer:1, why:"Every open app lives in RAM. When RAM fills up, the computer spends its time juggling instead of working — closing apps frees it." }
+            { q:"Your laptop gets very slow with many heavy apps open at once, but is fine with just two or three. What's most likely full?", options:["The SSD","The screen","RAM","The charger"], answer:2, why:"Every open app lives in RAM. When RAM fills up, the computer spends its time juggling instead of working — closing apps frees it." }
           ],
           m2: [
             { q:"What does DNS do?", options:["Speeds up Wi-Fi","Stores your files","Turns website names into IP addresses","Encrypts your password"], answer:2, why:"DNS is the internet's phonebook: you give it a name like example.com, it returns the server's IP address." },
@@ -3433,17 +3611,18 @@ WHERE name = 'Ben';</pre>
             { q:"Discrete math and logic help in BSIT mainly because…", options:["They're required for Wi-Fi","Computing runs on logic — conditions, sets, and step-by-step reasoning","They teach typing","They replace programming"], answer:1, why:"Algorithms, databases, and conditions are applied logic. Math is the gym where that muscle is built." },
             { q:"BSIT differs from Computer Science mostly in that BSIT…", options:["Has no programming at all","Leans practical — systems, networks, databases, and applying technology","Is only about repairing phones","Is a two-week course"], answer:1, why:"BSIT still programs plenty, but its center of gravity is applying and running technology in real organizations." },
             { q:"You've been stuck on the same error for an hour. What's the most productive next move?", options:["Abandon the whole topic","Read the error message carefully, search for it, and test one small fix at a time","Delete the project and start over","Wait for the error to fix itself"], answer:1, why:"Debugging is a core IT skill: the error message is a clue, and small, tested changes find the fault faster than random big ones." },
-            { q:"How should you honestly describe a freeCodeCamp certificate on a résumé or portfolio?", options:["As a college degree","As a free certificate earned by finishing the course and its projects — strongest alongside work you can show","As a guaranteed job offer","As a paid professional license"], answer:1, why:"freeCodeCamp certificates are genuinely free and earned by completing projects. They're real proof of finishing — and they convince most next to the projects themselves." }
+            { q:"How should you honestly describe a freeCodeCamp certificate on a résumé or portfolio?", options:["As a college degree","As a free certificate earned by finishing the course and its projects — strongest alongside work you can show","As a guaranteed job offer","As a paid professional license"], answer:1, why:"freeCodeCamp certificates are genuinely free and earned by completing projects. They're real proof of finishing — and they convince most next to the projects themselves." },
+            { q:"In 35 + x = 100, what is x?", options:["65","135","35","100"], answer:0, why:"Take 35 away from both sides: x = 100 − 35 = 65. Whatever you do to one side, do to the other." }
           ],
           gen: [
-            { q:"What does IT stand for — and mean?", options:["Internet Things — gadgets only","Information Technology — creating, processing, storing, retrieving, and transmitting information","Internal Tech — fixing printers","Instant Transfer — fast Wi-Fi"], answer:1, why:"IT is the whole discipline of handling information with computers and networks — building, running, securing, and supporting those systems." },
-            { q:"Which part performs the actual calculations in a computer?", options:["RAM","SSD","CPU","Monitor"], answer:2, why:"The CPU is the processor — billions of fetch–decode–execute cycles per second." },
-            { q:"The letter 'A' stored in a computer is, underneath, really…", options:["A tiny picture","The number 65, stored in binary as 01000001","A sound wave","A magnet"], answer:1, why:"Characters are numbers by agreement (ASCII/Unicode), and numbers are stored as binary. Everything is bits, all the way down." },
-            { q:"A server is…", options:["A waiter for programmers","A computer whose job is answering other computers' requests","Any laptop with Wi-Fi","A type of cable"], answer:1, why:"Servers store websites, files, and data, and respond to clients — like your browser — that request them." },
-            { q:"Which pair is matched correctly?", options:["Router — stores files","Switch — connects devices within one network","DNS — a type of database password","IP — a brand of monitor"], answer:1, why:"Switches connect devices inside a network; routers connect networks to each other; DNS resolves names; SQL queries databases." },
-            { q:"What does an operating system do?", options:["Only shows the desktop wallpaper","Manages hardware, runs programs, and handles files and users","Connects you to the internet by itself","Writes applications automatically"], answer:1, why:"Windows, Linux, Android — the OS is the manager layer between you, your apps, and the hardware." },
+            { q:"What does IT stand for — and mean?", options:["Internet Things — gadgets only","Internal Tech — fixing printers","Instant Transfer — fast Wi-Fi","Information Technology — creating, processing, storing, retrieving, and transmitting information"], answer:3, why:"IT is the whole discipline of handling information with computers and networks — building, running, securing, and supporting those systems." },
+            { q:"Which part performs the actual calculations in a computer?", options:["CPU","RAM","SSD","Monitor"], answer:0, why:"The CPU is the processor — billions of fetch–decode–execute cycles per second." },
+            { q:"The letter 'A' stored in a computer is, underneath, really…", options:["A tiny picture","A sound wave","The number 65, stored in binary as 01000001","A magnet"], answer:2, why:"Characters are numbers by agreement (ASCII/Unicode), and numbers are stored as binary. Everything is bits, all the way down." },
+            { q:"A server is…", options:["A waiter for programmers","Any laptop with Wi-Fi","A type of cable","A computer whose job is answering other computers' requests"], answer:3, why:"Servers store websites, files, and data, and respond to clients — like your browser — that request them." },
+            { q:"Which pair is matched correctly?", options:["Switch — connects devices within one network","Router — stores files","DNS — a type of database password","IP — a brand of monitor"], answer:0, why:"Switches connect devices inside a network; routers connect networks to each other; DNS resolves names; SQL queries databases." },
+            { q:"What does an operating system do?", options:["Only shows the desktop wallpaper","Connects you to the internet by itself","Manages hardware, runs programs, and handles files and users","Writes applications automatically"], answer:2, why:"Windows, Linux, Android — the OS is the manager layer between you, your apps, and the hardware." },
             { q:"Ransomware is malware that…", options:["Speeds up your games","Locks your files and demands payment to unlock them","Deletes your browser history only","Installs free apps"], answer:1, why:"Ransomware encrypts your files for extortion. Backups and updates are the classic defenses." },
-            { q:"Which of these is a real, legal start to a cybersecurity career path?", options:["Practicing on the school network without asking","Networking + Linux + coding first, then legal labs like TryHackMe","Buying leaked passwords to study","Skipping foundations and going straight to 'hacking tools'"], answer:1, why:"Professionals build foundations first, then practice legally — permission and labs are the entire point of ethical hacking." }
+            { q:"Which of these is a real, legal start to a cybersecurity career path?", options:["Practicing on the school network without asking","Buying leaked passwords to study","Skipping foundations and going straight to 'hacking tools'","Networking + Linux + coding first, then legal labs like TryHackMe"], answer:3, why:"Professionals build foundations first, then practice legally — permission and labs are the entire point of ethical hacking." }
           ]
         };
 
@@ -3679,14 +3858,17 @@ WHERE name = 'Ben';</pre>
           if (scrollHint && heroBottomDoc > 0){
             scrollHint.classList.toggle("gone", (heroBottomDoc - h.scrollTop) < h.clientHeight * 0.5);
           }
+          if (kickFx) kickFx();
         }
         window.addEventListener("scroll", onScrollFx, { passive:true });
         onScrollFx();
         if (heroFx && !RM){
+          var fxRaf = null, kickFx;
           document.addEventListener("mousemove", function(e){
             mTarget = (e.clientX / window.innerWidth - 0.5) * 14;
+            if (kickFx) kickFx();
           }, { passive:true });
-          (function pLoop(){
+          function pLoop(){
             if (heroEl && homeView && homeView.classList.contains("active")){
               var hr = heroEl.getBoundingClientRect();
               var past = -hr.top; /* px of hero scrolled above the viewport top */
@@ -3705,8 +3887,11 @@ WHERE name = 'Ben';</pre>
             mCur += (mTarget - mCur) * 0.06;
             heroFx.style.transform = "translate3d(" + mCur.toFixed(1) + "px," + (-fxYCur).toFixed(1) + "px,0)";
             heroFx.style.opacity = fxOCur.toFixed(3);
-            requestAnimationFrame(pLoop);
-          })();
+            var settled = Math.abs(fxYTarget - fxYCur) < 0.05 && Math.abs(fxOTarget - fxOCur) < 0.002 && Math.abs(mTarget - mCur) < 0.05;
+            if (!settled){ fxRaf = requestAnimationFrame(pLoop); } else { heroFx.style.transform = ""; heroFx.style.opacity = ""; fxRaf = null; }
+          }
+          kickFx = function(){ if (!fxRaf) fxRaf = requestAnimationFrame(pLoop); };
+          kickFx();
         }
 
         /* reveal on scroll (JS-gated: without JS everything is simply visible) */
@@ -3715,7 +3900,7 @@ WHERE name = 'Ben';</pre>
             entries.forEach(function(en){
               if (en.isIntersecting){
                 var el = en.target;
-                if (el.matches(".shelf-card, .err-card") && el.parentElement){
+                if (el.matches(".shelf-card, .err-card, .hw-step, .hw-card, .hw-cta, .rv-late") && el.parentElement){
                   var sibs = Array.prototype.filter.call(el.parentElement.children, function(n){ return n.classList.contains("rv"); });
                   el.style.transitionDelay = (Math.min(sibs.indexOf(el), 5) * 60) + "ms";
                 }
@@ -3725,7 +3910,7 @@ WHERE name = 'Ben';</pre>
               }
             });
           }, { threshold: 0.06, rootMargin: "0px 0px 25% 0px" });
-          document.querySelectorAll(".module, .shelf-card, .err-card, .dir-group, .shelf-cat").forEach(function(el){
+          document.querySelectorAll(".module, .shelf-card, .err-card, .dir-group, .shelf-cat, .hw-step, .hw-card, .hw-cta, .rv-late").forEach(function(el){
             el.classList.add("rv");
             rio.observe(el);
           });
@@ -4035,14 +4220,55 @@ WHERE name = 'Ben';</pre>
         var btn = document.getElementById("back-to-top");
         if (!btn) return;
         var RM = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var arc = btn.querySelector(".btt-arc");
+        var CIRC = 125.66;
+        function updateRing(){
+          if(!arc) return;
+          var h = document.documentElement;
+          var max = h.scrollHeight - h.clientHeight;
+          var p = max > 0 ? Math.min(1, Math.max(0, (window.scrollY || h.scrollTop) / max)) : 0;
+          arc.style.strokeDashoffset = (CIRC * (1 - p)).toFixed(2);
+        }
+        /* Scroll events can fire several times per frame; coalesce the
+           ring write behind rAF (same kick pattern as the hero fx loop)
+           so it runs at most once per frame. */
+        var ringRaf = null;
+        function kickRing(){
+          if (ringRaf) return;
+          ringRaf = requestAnimationFrame(function(){
+            ringRaf = null;
+            if(!RM) updateRing();
+          });
+        }
         function onScroll(){
           btn.classList.toggle("show", window.scrollY > 700);
+          kickRing();
         }
         window.addEventListener("scroll", onScroll, { passive:true });
         onScroll();
         btn.addEventListener("click", function(){
           window.scrollTo({ top:0, behavior: RM ? "auto" : "smooth" });
         });
+      })();
+    </script>
+    <script>
+      /* ---------- sticky guide headers: "stuck" state (progressive enhancement) ---------- */
+      /* Without JS the headers still stick via CSS; the class only adds the
+         hairline separator + soft shadow while a header is floating.
+         The observer watches each header against a root inset by the 68px
+         stick offset (+1): with threshold 1 it fires the moment a header
+         reaches the stick line and its top 1px slips above the inset root
+         (ratio drops below 1), and again when it scrolls back free. */
+      (function(){
+        if (!("IntersectionObserver" in window)) return;
+        var heads = document.querySelectorAll("#view-guide .sec-head");
+        if (!heads.length) return;
+        var io = new IntersectionObserver(function(entries){
+          entries.forEach(function(entry){
+            entry.target.classList.toggle("stuck", entry.boundingClientRect.top <= 69 && entry.intersectionRatio < 1);
+          });
+        }, { rootMargin:"-69px 0px 0px 0px", threshold:1 });
+        heads.forEach(function(h){ io.observe(h); });
       })();
     </script>
   </body>

@@ -117,10 +117,11 @@
 
       /* ---------- views ---------- */
       .view{ display:none; }
-      .view.active{ display:block; animation:fadein .25s ease; }
-      @keyframes fadein{ from{ opacity:0; transform:translateY(4px);} to{ opacity:1; transform:none;} }
+      .view.active{ display:block; animation:fadein .38s ease; }
+      @keyframes fadein{ from{ opacity:0; transform:translateY(8px);} to{ opacity:1; transform:none;} }
       @media (prefers-reduced-motion: reduce){
-        .view.active{ animation:none; }
+        @keyframes fadefade{ from{ opacity:0; } to{ opacity:1; } }
+        .view.active{ animation:fadefade .25s ease; }
         html{ scroll-behavior:auto; }
       }
 
@@ -129,10 +130,10 @@
       h2{ font-size:clamp(23px,3.6vw,30px); letter-spacing:-.02em; font-weight:700; line-height:1.2; margin:0 0 10px; }
       h3{ font-size:18px; font-weight:700; letter-spacing:-.01em; margin:0 0 6px; }
       p{ margin:0 0 14px; }
-      .lead{ font-size:18px; color:var(--text-2); line-height:1.6; }
+      .lead{ font-size:18px; color:var(--text-2); line-height:1.6; max-width:70ch; }
       .muted{ color:var(--text-2); }
       .small{ font-size:13.5px; color:var(--text-3); }
-      .section{ padding:34px 0 6px; border-top:1px solid var(--border-soft); margin-top:34px; }
+      .section{ padding:46px 0 8px; border-top:1px solid var(--border-soft); margin-top:46px; }
       .section:first-child{ border-top:none; margin-top:0; padding-top:6px; }
       .sec-head{ display:flex; gap:14px; align-items:flex-start; margin-bottom:16px; }
       .sec-icon{
@@ -144,7 +145,7 @@
 
       .card{
         background:var(--card); border:1px solid var(--border-soft);
-        border-radius:var(--radius); padding:20px;
+        border-radius:var(--radius); padding:22px;
       }
       .grid{ display:grid; gap:14px; grid-template-columns:1fr; }
       .grid > *{ min-width:0; }
@@ -181,7 +182,7 @@
       .steps{ display:grid; gap:12px; counter-reset:step; }
       .step{
         display:flex; gap:14px; background:var(--card); border:1px solid var(--border-soft);
-        border-radius:var(--radius); padding:16px 18px;
+        border-radius:var(--radius); padding:18px 20px;
       }
       .step-num{
         flex:none; width:30px; height:30px; border-radius:50%;
@@ -222,7 +223,7 @@
 
       .fact-strip{ display:grid; gap:14px; grid-template-columns:1fr; }
       @media (min-width:640px){ .fact-strip{ grid-template-columns:1fr 1fr 1fr; } }
-      .fact{ border:1px solid var(--border-soft); border-radius:var(--radius); padding:18px; background:var(--bg-soft); }
+      .fact{ border:1px solid var(--border-soft); border-radius:var(--radius); padding:20px; background:var(--bg-soft); }
       .fact .big{ font-size:26px; font-weight:800; letter-spacing:-.02em; line-height:1.1; }
       .fact p{ color:var(--text-2); font-size:14px; margin:6px 0 0; }
 
@@ -392,16 +393,16 @@
       }
 
       /* ---------- reveal on scroll (JS-gated: no JS = fully visible) ---------- */
-      .rv{ opacity:0; transform:translateY(18px); transition:opacity .7s cubic-bezier(.22,.61,.36,1), transform .7s cubic-bezier(.22,.61,.36,1); }
+      .rv{ opacity:0; transform:translateY(26px); transition:opacity .85s cubic-bezier(.22,.61,.36,1), transform .85s cubic-bezier(.22,.61,.36,1); }
       .rv.in{ opacity:1; transform:none; }
 
       /* ---------- view-switch staggered rise-in (JS-gated: .rise is only ever added by JS) ---------- */
-      .rise{ animation:risein .22s ease-out both; }
-      @keyframes risein{ from{ opacity:0; transform:translateY(12px); } to{ opacity:1; transform:translateY(0); } }
+      .rise{ animation:risein .5s cubic-bezier(.22,.61,.36,1) both; }
+      @keyframes risein{ from{ opacity:0; transform:translateY(16px); } to{ opacity:1; transform:translateY(0); } }
 
       /* ---------- split-heading rise-in (JS-gated) ---------- */
       .sw{ display:inline-block; overflow:hidden; vertical-align:bottom; padding-bottom:.09em; margin-bottom:-.09em; }
-      .swi{ display:inline-block; transform:translateY(115%); transition:transform .85s cubic-bezier(.22,.61,.36,1); will-change:transform; }
+      .swi{ display:inline-block; transform:translateY(115%); transition:transform 1.05s cubic-bezier(.22,.61,.36,1); will-change:transform; }
       .played .swi{ transform:none; will-change:auto; }
 
       /* ---------- hero scroll hint ---------- */
@@ -415,7 +416,7 @@
 
       /* ---------- hero parallax dot layer ---------- */
       .hero{ position:relative; }
-      .hero-fx{ position:absolute; inset:-34px; pointer-events:none; background-image:radial-gradient(rgba(255,255,255,.13) 1.2px, transparent 1.4px); background-size:26px 26px; }
+      .hero-fx{ position:absolute; inset:-34px; pointer-events:none; background-image:radial-gradient(rgba(255,255,255,.09) 1.2px, transparent 1.4px); background-size:26px 26px; }
       .hero > *:not(.hero-fx){ position:relative; }
 
       /* ---------- PDF download ---------- */
@@ -425,6 +426,61 @@
       .pdf-btn{ display:inline-flex; align-items:center; gap:9px; background:#fff; color:#0A0A0A; font-weight:700; font-size:15px; text-decoration:none; border:1px solid #fff; border-radius:999px; padding:13px 22px; min-height:48px; flex:none; transition:transform .15s ease; }
       .pdf-btn:hover{ transform:translateY(-1px); }
       .pdf-btn:active{ transform:scale(.97); }
+
+      /* ---------- textbook editions (Regular / Premium) ---------- */
+      .book-grid{ display:grid; gap:14px; grid-template-columns:1fr; margin-top:18px; }
+      @media (min-width:640px){ .book-grid{ grid-template-columns:1fr 1fr; } }
+      .book-ed{ background:var(--card); border:1px solid var(--border-soft); border-radius:var(--radius); padding:22px; display:flex; flex-direction:column; }
+      .book-ed.premium{ border-color:rgba(255,255,255,.38); }
+      .ed-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; }
+      .ed-tag{ font-size:11px; font-weight:800; letter-spacing:.13em; text-transform:uppercase; color:var(--text-2); border:1px solid var(--border); border-radius:999px; padding:5px 11px; white-space:nowrap; }
+      .ed-tag.hot{ background:#fff; color:#0A0A0A; border-color:#fff; }
+      .ed-price{ font-size:24px; font-weight:800; letter-spacing:-.02em; line-height:1; }
+      .book-ed h3{ margin:0 0 4px; font-size:19px; }
+      .book-ed .ed-sub{ margin:0; color:var(--text-2); font-size:14.5px; }
+      .book-list{ list-style:none; margin:14px 0 20px; padding:0; display:grid; gap:8px; font-size:14.5px; color:var(--text-2); }
+      .book-list li{ position:relative; padding-left:23px; }
+      .book-list li::before{ content:"\2713"; position:absolute; left:2px; top:0; color:#fff; font-weight:700; }
+      .book-ed .pdf-btn{ margin-top:auto; justify-content:center; }
+      .ed-foot{ margin-top:auto; padding-top:6px; color:var(--text-3); font-size:13px; }
+
+      /* ---------- guided path (home) + next-step bars ---------- */
+      .hero-cta{ display:flex; flex-wrap:wrap; gap:10px; margin-top:24px; }
+      .hero-cta button{ font:inherit; cursor:pointer; }
+      .hero-cta .jump-pill{ background:transparent; color:#fff; }
+      .path{ display:grid; gap:12px; margin-top:20px; }
+      .path-step{
+        display:flex; gap:16px; align-items:flex-start; width:100%;
+        text-align:left; font:inherit; color:var(--text);
+        background:var(--card); border:1px solid var(--border-soft);
+        border-radius:var(--radius); padding:20px 22px; cursor:pointer;
+        transition:border-color .2s ease, transform .2s ease, background .2s ease;
+      }
+      .path-step .step-num{ width:34px; height:34px; font-size:15px; margin-top:1px; }
+      .path-step h3{ margin:0 0 3px; }
+      .path-step p{ margin:0; color:var(--text-2); font-size:14.5px; }
+      .path-step .go{ display:inline-flex; align-items:center; gap:6px; margin-top:10px; font-weight:600; font-size:14px; }
+      .path-step.static{ cursor:default; }
+      .path-links{ display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+      .path-links .jump-pill{ font:inherit; cursor:pointer; background:transparent; color:#fff; }
+      .next-bar{
+        display:flex; flex-wrap:wrap; gap:14px 22px; align-items:center; justify-content:space-between;
+        border:1px solid var(--border); border-radius:var(--radius);
+        background:var(--card-2); padding:20px 22px; margin-top:46px;
+      }
+      .next-bar .next-label{ font-size:11.5px; font-weight:800; letter-spacing:.13em; text-transform:uppercase; color:var(--text-3); }
+      .next-bar p{ margin:4px 0 0; color:var(--text-2); font-size:14.5px; }
+      .next-bar p strong{ color:#fff; }
+      .next-bar .pdf-btn{ flex:none; }
+
+      /* desktop hover life: quiet lift + border brighten on cards that
+         are not already tilt-driven (transform/opacity only) */
+      @media (hover:hover) and (pointer:fine){
+        .fact, .step, .book-ed, .stat-card, .path-step{ transition:transform .25s ease, border-color .25s ease, background .25s ease; }
+        .fact:hover, .step:hover, .book-ed:hover, .stat-card:hover, .path-step:hover{ transform:translateY(-3px); border-color:rgba(255,255,255,.26); }
+        .dir-entry{ transition:border-color .2s ease, background .2s ease; }
+        .dir-entry:hover{ border-color:rgba(255,255,255,.26); background:var(--card-2); }
+      }
 
       /* ---------- courses-by-topic directory ---------- */
       .dir-group{ margin-top:24px; }
@@ -522,10 +578,20 @@
       @media (prefers-reduced-motion: reduce){
         html{ scroll-behavior:auto; }
         #scroll-progress{ display:none; }
-        .rv{ opacity:1 !important; transform:none !important; transition:none !important; }
-        .rise{ animation:none !important; }
-        .swi{ transform:none !important; transition:none !important; }
+        /* Reduced motion = gentler, not frozen: entrance effects keep
+           running as opacity-only fades (no travel, no parallax, no
+           scale), so a PC whose OS turns window animations off — which
+           browsers report as prefers-reduced-motion — still gets a
+           living page instead of a completely static one. Continuous
+           and vestibular motion (parallax, tilt, boot, blinking, the
+           wheel loop) stays fully off below and in the JS RM gates. */
+        .rv{ transform:none !important; transition:opacity .5s ease !important; }
+        @keyframes risefade{ from{ opacity:0; } to{ opacity:1; } }
+        .rise{ animation:risefade .3s ease-out both !important; }
+        .swi{ transform:none !important; opacity:0; transition:opacity .45s ease !important; }
+        .played .swi{ opacity:1; }
         .mouse::after{ animation:none; }
+        .bin-strip{ animation:none; }
         .scroll-hint{ transition:none; }
         #boot{ display:none !important; }
         #view-guide .sec-head{ transition:none; }
@@ -575,7 +641,12 @@
         color:var(--text-3); white-space:nowrap; overflow:hidden;
         border-top:1px solid var(--border-soft); border-bottom:1px solid var(--border-soft);
         padding:10px 2px; margin:26px 0 0; user-select:none;
+        animation:bin-drift 16s ease-in-out infinite alternate;
       }
+      /* the strip is one long repeated line, so a slow text-indent drift
+         reads as a quiet data stream sliding by — motion you can feel
+         without anything jumping around (off under reduced motion) */
+      @keyframes bin-drift{ from{ text-indent:0; } to{ text-indent:-52px; } }
 
       .diagram{
         display:flex; align-items:stretch; gap:4px;
@@ -778,7 +849,7 @@
       <button class="menu-btn" id="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="sidebar">
         <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
-      <div class="topbar-title">All About IT<span>menu → explore the site</span></div>
+      <div class="topbar-title">All About IT<span>menu → the path &amp; all pages</span></div>
     </header>
     <div class="scrim" id="scrim"></div>
 
@@ -797,7 +868,7 @@
           </div>
         </div>
         <nav class="nav" aria-label="Main views">
-          <div class="nav-label" aria-hidden="true">Learn</div>
+          <div class="nav-label" aria-hidden="true">Learn — in this order</div>
           <button class="nav-btn active" data-view="home" type="button">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
             Home
@@ -846,6 +917,13 @@
             <span class="tag solid">A beginner-friendly guide</span>
             <h1>Everything runs on IT. Here&rsquo;s how it actually works.</h1>
             <p class="lead">Phones, games, GCash, school portals, Wi-Fi at home — all of it is information technology. This little site explains the whole world of IT in plain words: what computers are, how the internet works, how coding works, and how to start learning it yourself, for free.</p>
+            <div class="hero-cta">
+              <button type="button" class="pdf-btn" data-goto="hello">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                Start here — write your first code
+              </button>
+              <button type="button" class="jump-pill" data-goto="course">See the 8-module Course</button>
+            </div>
             <div class="scroll-hint" aria-hidden="true"><div class="mouse"></div><span>Scroll to explore</span></div>
           </div>
 
@@ -888,40 +966,81 @@
           </div>
 
           <div class="section">
-            <div class="card pdf-card">
-              <div>
-                <h3>Take the course with you</h3>
-                <p class="muted">The whole 8-module path, the free-course directory, and the cheat sheets in one printable PDF — for studying offline or sharing with classmates.</p>
+            <h2>Start here — your path through this site</h2>
+            <p class="muted">New here? Go in this order — each step builds on the one before it, and every page ends by pointing to the next step. Already know the basics? Jump straight to the step you need.</p>
+            <div class="path">
+              <button class="path-step" type="button" data-goto="hello">
+                <span class="step-num">1</span>
+                <span>
+                  <h3>Hello, World! — First Code</h3>
+                  <p>Brand new to code? Write and run your very first program, see it in eight languages, and try the live coding box.</p>
+                  <span class="go">Write your first code <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span>
+                </span>
+              </button>
+              <button class="path-step" type="button" data-goto="course">
+                <span class="step-num">2</span>
+                <span>
+                  <h3>The Course — 8 modules, in order</h3>
+                  <p>The main path: how computers work, coding, networks, databases, security, and the math behind IT — a full lesson and a self-check in every module.</p>
+                  <span class="go">Start Module 1 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span>
+                </span>
+              </button>
+              <button class="path-step" type="button" data-goto="guide">
+                <span class="step-num">3</span>
+                <span>
+                  <h3>All About IT — the full guide</h3>
+                  <p>The complete explanations behind every module — computer systems, coding, networks, databases, security, and careers. Read it like a book, or jump to the topic you need.</p>
+                  <span class="go">Read the guide <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span>
+                </span>
+              </button>
+              <div class="path-step static">
+                <span class="step-num">4</span>
+                <span>
+                  <h3>Bookshelf &amp; Reference — keep going</h3>
+                  <p>Every free resource the Course uses, in one place — plus quick lookups for when you get stuck mid-lesson.</p>
+                  <span class="path-links">
+                    <button type="button" class="jump-pill" data-goto="shelf">Bookshelf</button>
+                    <button type="button" class="jump-pill" data-goto-anchor="g-cheat">Cheat Sheets</button>
+                    <button type="button" class="jump-pill" data-goto-anchor="g-glossary">Glossary</button>
+                    <button type="button" class="jump-pill" data-goto-anchor="g-careers">IT Careers</button>
+                  </span>
+                </span>
               </div>
-              <a class="pdf-btn" href="it-course-guide.pdf" download>
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M4 21h16"/></svg>
-                Download the PDF Course Guide
-              </a>
             </div>
           </div>
 
           <div class="section">
-            <h2>Start here</h2>
-            <p class="muted">Three places to explore. No order required — but the Course is built step by step if you want a path.</p>
-            <div class="pick-grid">
-              <button class="pick" type="button" data-goto="guide">
-                <span class="pick-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2.6-3 4"/><line x1="12" y1="17.5" x2="12.01" y2="17.5"/></svg></span>
-                <h3>All About IT</h3>
-                <p>The complete guide — computer systems, coding, networks, databases, security, careers, and a glossary.</p>
-                <span class="go">Read the guide <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span>
-              </button>
-              <button class="pick" type="button" data-goto="course">
-                <span class="pick-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 9 12 4 2 9l10 5 10-5z"/><path d="M6 11.5V16c0 1.7 2.7 3 6 3s6-1.3 6-3v-4.5"/></svg></span>
-                <h3>The Course</h3>
-                <p>An 8-module learning path, in order, built only from free courses — with a quick self-check in every module.</p>
-                <span class="go">Start module 1 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span>
-              </button>
-              <button class="pick" type="button" data-goto="shelf">
-                <span class="pick-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5v13z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></svg></span>
-                <h3>Bookshelf</h3>
-                <p>The free resources shelf — the same sites the Course uses, kept in one place for quick visits.</p>
-                <span class="go">Browse the shelf <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span>
-              </button>
+            <h2>The course, as one textbook</h2>
+            <p class="muted">Everything on this site, bound into a single textbook that follows the 8-module path in order. It comes in two editions — <strong style="color:#fff;">Regular</strong> is the complete textbook, free; <strong style="color:#fff;">Premium</strong> adds the full reviewer pack on top of it.</p>
+            <div class="book-grid">
+              <div class="book-ed">
+                <div class="ed-top"><span class="ed-tag">Regular Edition</span><span class="ed-price">Free</span></div>
+                <h3>The complete textbook</h3>
+                <p class="ed-sub">The whole course in one printable PDF — for studying offline or sharing with classmates.</p>
+                <ul class="book-list">
+                  <li>All 8 modules, in order</li>
+                  <li>The free-course directory</li>
+                  <li>The cheat sheets</li>
+                </ul>
+                <a class="pdf-btn" href="it-course-guide.pdf" download>
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M4 21h16"/></svg>
+                  Download the Regular Edition
+                </a>
+              </div>
+              <div class="book-ed premium">
+                <div class="ed-top"><span class="ed-tag hot">Premium Edition</span><span class="ed-price">&#8369;249</span></div>
+                <h3>Textbook + reviewer pack</h3>
+                <p class="ed-sub">Everything in Regular, plus the complete reviewer pack for exam prep:</p>
+                <ul class="book-list">
+                  <li>Per-topic reviewers with worked examples &amp; exam traps</li>
+                  <li>Expanded cheat sheets</li>
+                  <li>104 practice questions with explained answer keys</li>
+                  <li>20-question mock exam with a score guide</li>
+                  <li>Glossary in English + Tagalog</li>
+                  <li>4-week study plan with a progress tracker</li>
+                </ul>
+                <p class="ed-foot">One-time payment &middot; Digital download (PDF)</p>
+              </div>
             </div>
           </div>
 
@@ -954,6 +1073,14 @@
           <div class="section">
             <h2>Who this is for</h2>
             <p class="muted">This site is for IT students, future IT students, and anyone curious about how computers actually work. If you&rsquo;re studying IT now, planning to take an IT course later, or learning on your own outside school, you&rsquo;re in the right place. There&rsquo;s a full roadmap in the guide showing what to learn, in what order — for the school path and the self-taught path alike.</p>
+          </div>
+
+          <div class="next-bar rv-late">
+            <div>
+              <span class="next-label">Next step</span>
+              <p><strong>Step 1 of the path:</strong> Hello, World! — write and run your first program. It takes two minutes.</p>
+            </div>
+            <button type="button" class="pdf-btn" data-goto="hello">Start Step 1 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></button>
           </div>
         </section>
 
@@ -1109,7 +1236,7 @@ int main() {
 
           <div class="section">
             <div class="callout hw-cta">
-              <h3>What next?</h3>
+              <h3>Next step — keep going</h3>
               <p class="muted">You just read real code in eight languages. Keep the streak going:</p>
               <ul class="clean">
                 <li><strong>The Course</strong> — Module 1 covers how computers actually work, and Module 2 takes your first real steps in coding, in order, with self-checks.</li>
@@ -2010,6 +2137,14 @@ SELECT COUNT(*) FROM students;           <span class="cm">-- count rows</span></
               <iframe id="sandbox-frame" title="Your code preview" sandbox="allow-scripts" style="width:100%; min-height:190px; background:#fff; border:1px solid var(--border-soft); border-radius:12px;"></iframe>
             </div>
           </div>
+
+          <div class="next-bar rv-late">
+            <div>
+              <span class="next-label">Next step</span>
+              <p>Read the guide? Now put it in order — <strong>the Course</strong> walks the same topics as 8 modules, with a self-check at the end of each one.</p>
+            </div>
+            <button type="button" class="pdf-btn" data-goto="course">Go to the Course <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></button>
+          </div>
         </section>
 
         <!-- ================= COURSE ================= -->
@@ -2032,15 +2167,39 @@ SELECT COUNT(*) FROM students;           <span class="cm">-- count rows</span></
             </div>
           </div>
 
-          <div class="card pdf-card" style="margin-bottom:16px;">
-            <div>
-              <h3>The whole course, as a PDF</h3>
-              <p class="muted">All 8 modules, the free-course directory below, and the cheat sheets in one printable file — study offline, or share it with other IT students.</p>
+          <div style="margin-bottom:22px;">
+            <h2>The whole course, as one textbook</h2>
+            <p class="muted">This course is also a single textbook, in two editions. <strong style="color:#fff;">Regular</strong> is the complete textbook — all 8 modules, the free-course directory below, and the cheat sheets in one printable file. <strong style="color:#fff;">Premium</strong> adds the full reviewer pack on top of it.</p>
+            <div class="book-grid">
+              <div class="book-ed">
+                <div class="ed-top"><span class="ed-tag">Regular Edition</span><span class="ed-price">Free</span></div>
+                <h3>The complete textbook</h3>
+                <p class="ed-sub">Study offline, or share it with other IT students.</p>
+                <ul class="book-list">
+                  <li>All 8 modules, in order</li>
+                  <li>The free-course directory</li>
+                  <li>The cheat sheets</li>
+                </ul>
+                <a class="pdf-btn" href="it-course-guide.pdf" download>
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M4 21h16"/></svg>
+                  Download the Regular Edition
+                </a>
+              </div>
+              <div class="book-ed premium">
+                <div class="ed-top"><span class="ed-tag hot">Premium Edition</span><span class="ed-price">&#8369;249</span></div>
+                <h3>Textbook + reviewer pack</h3>
+                <p class="ed-sub">Everything in Regular, plus the complete reviewer pack for exam prep:</p>
+                <ul class="book-list">
+                  <li>Per-topic reviewers with worked examples &amp; exam traps</li>
+                  <li>Expanded cheat sheets</li>
+                  <li>104 practice questions with explained answer keys</li>
+                  <li>20-question mock exam with a score guide</li>
+                  <li>Glossary in English + Tagalog</li>
+                  <li>4-week study plan with a progress tracker</li>
+                </ul>
+                <p class="ed-foot">One-time payment &middot; Digital download (PDF)</p>
+              </div>
             </div>
-            <a class="pdf-btn" href="it-course-guide.pdf" download>
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M4 21h16"/></svg>
-              Download the PDF Course Guide
-            </a>
           </div>
 
           <div class="callout" style="margin-bottom:22px;">
@@ -2075,6 +2234,7 @@ SELECT COUNT(*) FROM students;           <span class="cm">-- count rows</span></
               <div class="dir-entry"><div class="dir-main"><a class="dir-name" href="https://cs50.harvard.edu/python/" target="_blank" rel="noopener">Harvard CS50P — Python</a><p>Harvard&rsquo;s introduction to programming with Python: functions, conditions, loops, libraries, and a final project.</p></div><div class="dir-meta"><span>Beginner</span><span>Certificate: free from CS50 · edX verified is paid</span></div></div>
               <div class="dir-entry"><div class="dir-main"><a class="dir-name" href="https://www.freecodecamp.org/learn/python-v9/" target="_blank" rel="noopener">freeCodeCamp — Python</a><p>Interactive Python lessons and projects, right in the browser, inside freeCodeCamp&rsquo;s curriculum.</p></div><div class="dir-meta"><span>Beginner</span><span>Certificate: free</span></div></div>
               <div class="dir-entry"><div class="dir-main"><a class="dir-name" href="https://www.youtube.com/@freecodecamp" target="_blank" rel="noopener">freeCodeCamp — YouTube channel</a><p>Full-length Python video courses (and more). No account needed — just press play.</p></div><div class="dir-meta"><span>Beginner</span><span>Certificate: none</span></div></div>
+              <div class="dir-entry"><div class="dir-main"><a class="dir-name" href="https://www.py4e.com/" target="_blank" rel="noopener">Python for Everybody — Dr. Chuck (Univ. of Michigan)</a><p>University of Michigan&rsquo;s beginner Python course: free video lectures, textbook, and autograded assignments, with a free grade book when you log in. Also on Coursera and edX.</p></div><div class="dir-meta"><span>Beginner</span><span>Certificate: badges free on py4e.com · Coursera cert paid</span></div></div>
             </div>
 
             <div class="dir-group" id="dir-sql">
@@ -3037,6 +3197,14 @@ WHERE name = 'Ben';</pre>
               <p class="muted" style="margin:14px 0 0; font-size:14px;">More free courses for this module, by category: <a href="#dir-coding" style="color:#fff; font-weight:600;">Coding &amp; General Programming</a></p>
             </div>
           </div>
+
+          <div class="next-bar rv-late">
+            <div>
+              <span class="next-label">Next step</span>
+              <p>Course done — or hunting for one specific free course? The <strong>Bookshelf</strong> keeps every resource the Course uses in one place.</p>
+            </div>
+            <button type="button" class="pdf-btn" data-goto="shelf">Browse the Bookshelf <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></button>
+          </div>
         </section>
 
         <!-- ================= BOOKSHELF ================= -->
@@ -3200,6 +3368,14 @@ WHERE name = 'Ben';</pre>
               <span class="visit">Visit site <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg></span>
             </a>
           </div>
+
+          <div class="next-bar rv-late">
+            <div>
+              <span class="next-label">Next step</span>
+              <p>Stuck on a term, or need a formula fast? The <strong>Reference</strong> sections — cheat sheets, glossary, careers — live at the end of the guide.</p>
+            </div>
+            <button type="button" class="pdf-btn" data-goto-anchor="g-cheat">Open the Cheat Sheets <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></button>
+          </div>
         </section>
 
         <footer>
@@ -3234,15 +3410,16 @@ WHERE name = 'Ben';</pre>
 
         /* ---------- view-switch staggered rise-in ----------
            When a view opens, its in-viewport content blocks fade up in
-           order (transform + opacity only, 220ms each, 60ms stagger).
+           order (transform + opacity only, 500ms each, 70ms stagger).
            Complementary to reveal-on-scroll: any block that reveal-on-
            scroll manages — itself or anywhere inside it — is left
            entirely to that system, so nothing is ever double-hidden.
-           JS-gated like .rv: without JS (or with reduced motion, via the
-           RM check plus the CSS kill switch) nothing is ever hidden. */
+           JS-gated like .rv: without JS nothing is ever hidden; under
+           reduced motion the CSS swaps the rise for an opacity-only
+           fade, so the entrance still plays, minus the travel. */
         var RV_SEL = ".module, .shelf-card, .err-card, .dir-group, .shelf-cat";
         function playRise(scope, skipH1Block){
-          if (RM || !scope || !scope.children) return;
+          if (!scope || !scope.children) return;
           var vh = window.innerHeight || document.documentElement.clientHeight;
           var picked = [];
           var kids = scope.children;
@@ -3260,7 +3437,7 @@ WHERE name = 'Ben';</pre>
             el.classList.remove("rise");
             el.style.animationDelay = "";
             void el.offsetWidth; /* restart cleanly if re-picked mid-flight */
-            el.style.animationDelay = (idx * 60) + "ms";
+            el.style.animationDelay = (idx * 70) + "ms";
             el.classList.add("rise");
             var cleanup = function(){
               el.classList.remove("rise");
@@ -3268,12 +3445,12 @@ WHERE name = 'Ben';</pre>
               el.removeEventListener("animationend", cleanup);
             };
             el.addEventListener("animationend", cleanup);
-            setTimeout(cleanup, idx * 60 + 420);
+            setTimeout(cleanup, idx * 70 + 720);
           });
         }
         var riseToken = 0;
         function scheduleRise(scope, name, anchored, freshSplit){
-          if (RM || !scope) return;
+          if (!scope) return;
           var token = ++riseToken;
           var start = function(){ if (token === riseToken) playRise(scope, freshSplit); };
           if (name === "home" || typeof BOOT === "undefined" || !BOOT[name] || !bootEl){
@@ -3572,16 +3749,16 @@ WHERE name = 'Ben';</pre>
             { q:"Two laptops in the same house can share a file directly, even with the internet down. Why?", options:["They are on the same LAN, so they can talk to each other locally","They use the same password","DNS works without internet","They are the same brand"], answer:0, why:"Devices on the same local network communicate directly. The internet is only needed for things outside that network." }
           ],
           m3: [
-            { q:"In Python, what does this do?  score = score + 10", options:["Deletes the score","Adds 10 to whatever score currently holds","Prints the score","Asks the user for a score"], answer:1, why:"It reads score's current value, adds 10, and stores the result back in the same variable." },
+            { q:"In Python, what does this do?  score = score + 10", options:["Adds 10 to whatever score currently holds","Deletes the score","Prints the score","Asks the user for a score"], answer:0, why:"It reads score's current value, adds 10, and stores the result back in the same variable." },
             { q:"Which building block lets code make a decision?", options:["Variable","Loop","Condition (if/else)","Comment"], answer:2, why:"Conditions branch the program: if this is true, do that; else, do the other thing." },
-            { q:"Why write a function instead of copying the same code five times?", options:["It runs on the GPU","Write it once, reuse it anywhere — and fixing it fixes it everywhere","Functions are required by law","It makes the file bigger"], answer:1, why:"Functions package a task under a name. One definition, unlimited calls — and one place to fix bugs." },
+            { q:"Why write a function instead of copying the same code five times?", options:["It runs on the GPU","Functions are required by law","It makes the file bigger","Write it once, reuse it anywhere — and fixing it fixes it everywhere"], answer:3, why:"Functions package a task under a name. One definition, unlimited calls — and one place to fix bugs." },
             { q:"What is a loop for?", options:["Storing one value","Repeating steps without writing them out again and again","Printing on paper","Naming a file"], answer:1, why:"A loop runs the same block of code repeatedly — 'ask a question' written once can run five times, or five hundred." },
-            { q:"A program runs:  if score >= 50: print(\"Pass\")  — and score is 40. What happens?", options:["It prints \"Pass\"","Nothing prints — the condition is false, so the block is skipped","The program crashes","Score becomes 50"], answer:1, why:"40 >= 50 is false, so the if block never runs. With no else branch, the program just moves on." }
+            { q:"A program runs:  if score >= 50: print(\"Pass\")  — and score is 40. What happens?", options:["It prints \"Pass\"","The program crashes","Nothing prints — the condition is false, so the block is skipped","Score becomes 50"], answer:2, why:"40 >= 50 is false, so the if block never runs. With no else branch, the program just moves on." }
           ],
           m4: [
-            { q:"Which language gives a web page its structure and content?", options:["CSS","HTML","SQL","Python"], answer:1, why:"HTML is markup: headings, paragraphs, links, images. CSS styles it; JavaScript makes it interactive." },
-            { q:"Is HTML a programming language?", options:["Yes, the main one","No — it's a markup language; it describes structure, not logic","Yes, but only on phones","No — it's a database"], answer:1, why:"Honest answer: HTML has no variables, conditions, or loops. It's markup. CSS is styling. JavaScript is the programming language of the three." },
-            { q:"In a browser, JavaScript is mainly used to…", options:["Store all user accounts","Make pages respond and interact","Replace the server","Design the motherboard"], answer:1, why:"JavaScript runs in the visitor's browser and handles clicks, forms, animations, and live updates." },
+            { q:"Which language gives a web page its structure and content?", options:["CSS","SQL","HTML","Python"], answer:2, why:"HTML is markup: headings, paragraphs, links, images. CSS styles it; JavaScript makes it interactive." },
+            { q:"Is HTML a programming language?", options:["No — it's a markup language; it describes structure, not logic","Yes, the main one","Yes, but only on phones","No — it's a database"], answer:0, why:"Honest answer: HTML has no variables, conditions, or loops. It's markup. CSS is styling. JavaScript is the programming language of the three." },
+            { q:"In a browser, JavaScript is mainly used to…", options:["Store all user accounts","Replace the server","Design the motherboard","Make pages respond and interact"], answer:3, why:"JavaScript runs in the visitor's browser and handles clicks, forms, animations, and live updates." },
             { q:"You want to change a heading's color and size on your page. Which language do you edit?", options:["HTML","CSS","SQL","Python"], answer:1, why:"CSS controls presentation — colors, sizes, spacing, layout. HTML stays focused on structure and content." },
             { q:"A button on a web page looks fine but does nothing at all when clicked. Which layer is most likely missing?", options:["HTML","CSS","JavaScript","DNS"], answer:2, why:"HTML makes the button exist and CSS makes it look right — but reacting to a click is behavior, and behavior is JavaScript's job." }
           ],
@@ -3593,25 +3770,25 @@ WHERE name = 'Ben';</pre>
             { q:"Two students in a table have exactly the same name. How does the database still tell them apart?", options:["It can't — matching names break the table","By alphabetical order of their grades","Each row has a primary key — a unique ID for that record","By the time they enrolled"], answer:2, why:"A primary key (like a student ID number) gives every row a unique identity, even when names or other fields repeat." }
           ],
           m6: [
-            { q:"Which of these is NOT a job of the operating system?", options:["Managing memory between apps","Running and scheduling programs","Writing your essay for you","Controlling storage and devices"], answer:2, why:"The OS manages the machine and runs your programs — the essay is, sadly, still your job." },
-            { q:"Android is built on which kernel family?", options:["Windows","Linux","iOS","BIOS"], answer:1, why:"Android uses the Linux kernel — one reason Linux skills transfer to phones, servers, and embedded devices." },
+            { q:"Which of these is NOT a job of the operating system?", options:["Writing your essay for you","Managing memory between apps","Running and scheduling programs","Controlling storage and devices"], answer:0, why:"The OS manages the machine and runs your programs — the essay is, sadly, still your job." },
+            { q:"Android is built on which kernel family?", options:["Windows","iOS","BIOS","Linux"], answer:3, why:"Android uses the Linux kernel — one reason Linux skills transfer to phones, servers, and embedded devices." },
             { q:"In a terminal, what does the command  cd  do?", options:["Copies a disk","Changes the current folder (directory)","Deletes a file","Connects to Wi-Fi"], answer:1, why:"cd = change directory. Its partners: pwd (where am I), ls (list files), mkdir (make a folder)." },
-            { q:"You double-click an app's icon. What does the operating system do to launch it?", options:["Downloads it fresh from the internet","Loads the program from storage into RAM and schedules it on the CPU","Prints the program's code","Sends it to the monitor to open"], answer:1, why:"Programs are stored on disk, but they run from RAM. Starting apps — and giving each one CPU time and memory — is core OS work." },
-            { q:"You're in a folder called projects and want to create a new folder inside it called site. Which terminal command?", options:["cd site","mkdir site","ls site","rm site"], answer:1, why:"mkdir = make directory. cd moves into a folder that already exists, ls lists what's there, and rm removes things." }
+            { q:"You double-click an app's icon. What does the operating system do to launch it?", options:["Downloads it fresh from the internet","Prints the program's code","Loads the program from storage into RAM and schedules it on the CPU","Sends it to the monitor to open"], answer:2, why:"Programs are stored on disk, but they run from RAM. Starting apps — and giving each one CPU time and memory — is core OS work." },
+            { q:"You're in a folder called projects and want to create a new folder inside it called site. Which terminal command?", options:["cd site","ls site","rm site","mkdir site"], answer:3, why:"mkdir = make directory. cd moves into a folder that already exists, ls lists what's there, and rm removes things." }
           ],
           m7: [
-            { q:"What makes hacking 'ethical' instead of criminal?", options:["Using a hoodie and dark room","Written permission from the owner, and the goal of fixing the holes","Never getting caught","Only hacking on weekends"], answer:1, why:"Permission + purpose. Ethical hackers are hired, scoped in advance, and end with a report of what to fix. Without permission, the same act is a crime — in the Philippines, under RA 10175." },
-            { q:"A message says 'Your account will be deleted in 1 hour! Log in here now.' Most likely it's…", options:["A software update","Phishing — panic + a fake login link","A backup reminder","DNS"], answer:1, why:"Urgency and fear are phishing's favorite tools. Don't click — open the real app or site yourself." },
+            { q:"What makes hacking 'ethical' instead of criminal?", options:["Using a hoodie and dark room","Never getting caught","Only hacking on weekends","Written permission from the owner, and the goal of fixing the holes"], answer:3, why:"Permission + purpose. Ethical hackers are hired, scoped in advance, and end with a report of what to fix. Without permission, the same act is a crime — in the Philippines, under RA 10175." },
+            { q:"A message says 'Your account will be deleted in 1 hour! Log in here now.' Most likely it's…", options:["Phishing — panic + a fake login link","A software update","A backup reminder","DNS"], answer:0, why:"Urgency and fear are phishing's favorite tools. Don't click — open the real app or site yourself." },
             { q:"Which practice is legal for learning security skills?", options:["Testing a classmate's account 'just to check'","Scanning a random company's website for holes","Using TryHackMe rooms and your own devices","Guessing a teacher's password"], answer:2, why:"Your own lab, TryHackMe, Hack The Box, and CTFs exist precisely so curiosity has a legal place to go." },
             { q:"Which password habit protects you best if one website you use gets breached?", options:["One strong password reused on every account","A long, unique password for each account","Your birthday, so you never forget it","The word password with a number added"], answer:1, why:"Attackers try leaked passwords on other sites. A unique password per account means one breach can't unlock the rest — a password manager makes this practical." },
-            { q:"Before an ethical hacker runs any test on a system, what must be settled first?", options:["Which hoodie to wear","Written permission and a clear scope — what may be tested, and what may not","How fast their computer is","Which antivirus the target uses"], answer:1, why:"Permission and scope come before tools. They define the job, protect the client, and are exactly what separate professional testing from a crime." }
+            { q:"Before an ethical hacker runs any test on a system, what must be settled first?", options:["Written permission and a clear scope — what may be tested, and what may not","Which hoodie to wear","How fast their computer is","Which antivirus the target uses"], answer:0, why:"Permission and scope come before tools. They define the job, protect the client, and are exactly what separate professional testing from a crime." }
           ],
           m8: [
-            { q:"What's the best proof of skill to show a college or employer someday?", options:["A list of videos watched","Finished projects you can show and explain","Having the newest phone","One perfect exam score"], answer:1, why:"Projects are evidence. A small portfolio page of things you actually built beats claims every time." },
-            { q:"Discrete math and logic help in BSIT mainly because…", options:["They're required for Wi-Fi","Computing runs on logic — conditions, sets, and step-by-step reasoning","They teach typing","They replace programming"], answer:1, why:"Algorithms, databases, and conditions are applied logic. Math is the gym where that muscle is built." },
-            { q:"BSIT differs from Computer Science mostly in that BSIT…", options:["Has no programming at all","Leans practical — systems, networks, databases, and applying technology","Is only about repairing phones","Is a two-week course"], answer:1, why:"BSIT still programs plenty, but its center of gravity is applying and running technology in real organizations." },
+            { q:"What's the best proof of skill to show a college or employer someday?", options:["Finished projects you can show and explain","A list of videos watched","Having the newest phone","One perfect exam score"], answer:0, why:"Projects are evidence. A small portfolio page of things you actually built beats claims every time." },
+            { q:"Discrete math and logic help in BSIT mainly because…", options:["They're required for Wi-Fi","They teach typing","Computing runs on logic — conditions, sets, and step-by-step reasoning","They replace programming"], answer:2, why:"Algorithms, databases, and conditions are applied logic. Math is the gym where that muscle is built." },
+            { q:"BSIT differs from Computer Science mostly in that BSIT…", options:["Has no programming at all","Is only about repairing phones","Is a two-week course","Leans practical — systems, networks, databases, and applying technology"], answer:3, why:"BSIT still programs plenty, but its center of gravity is applying and running technology in real organizations." },
             { q:"You've been stuck on the same error for an hour. What's the most productive next move?", options:["Abandon the whole topic","Read the error message carefully, search for it, and test one small fix at a time","Delete the project and start over","Wait for the error to fix itself"], answer:1, why:"Debugging is a core IT skill: the error message is a clue, and small, tested changes find the fault faster than random big ones." },
-            { q:"How should you honestly describe a freeCodeCamp certificate on a résumé or portfolio?", options:["As a college degree","As a free certificate earned by finishing the course and its projects — strongest alongside work you can show","As a guaranteed job offer","As a paid professional license"], answer:1, why:"freeCodeCamp certificates are genuinely free and earned by completing projects. They're real proof of finishing — and they convince most next to the projects themselves." },
+            { q:"How should you honestly describe a freeCodeCamp certificate on a résumé or portfolio?", options:["As a college degree","As a guaranteed job offer","As a free certificate earned by finishing the course and its projects — strongest alongside work you can show","As a paid professional license"], answer:2, why:"freeCodeCamp certificates are genuinely free and earned by completing projects. They're real proof of finishing — and they convince most next to the projects themselves." },
             { q:"In 35 + x = 100, what is x?", options:["65","135","35","100"], answer:0, why:"Take 35 away from both sides: x = 100 − 35 = 65. Whatever you do to one side, do to the other." }
           ],
           gen: [
@@ -3787,7 +3964,7 @@ WHERE name = 'Ben';</pre>
         /* ---------- hero terminal typing effect ---------- */
         var heroTerm = document.getElementById("term-home");
         var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        if (heroTerm && !reduceMotion){
+        if (heroTerm){
           var allLines = Array.prototype.slice.call(heroTerm.querySelectorAll(".tl"));
           var promptLine = null;
           var typeLines = allLines.filter(function(l){
@@ -3799,6 +3976,9 @@ WHERE name = 'Ben';</pre>
           typeLines.forEach(function(l){ l.textContent = ""; });
           if (promptLine) promptLine.style.visibility = "hidden";
           var li = 0, ci = 0, started = false;
+          /* Reduced motion types faster with shorter pauses instead of
+             not typing at all — the terminal still comes alive, gently. */
+          var typeMs = reduceMotion ? 8 : 22, lineMs = reduceMotion ? 130 : 320;
           function typeStep(){
             if (li >= typeLines.length){
               if (promptLine) promptLine.style.visibility = "visible";
@@ -3810,9 +3990,9 @@ WHERE name = 'Ben';</pre>
             if (ci >= full.length){
               typeLines[li].innerHTML = savedHTML[li];
               li++; ci = 0;
-              setTimeout(typeStep, 260);
+              setTimeout(typeStep, lineMs);
             } else {
-              setTimeout(typeStep, 16);
+              setTimeout(typeStep, typeMs);
             }
           }
           function startTyping(){ if (!started){ started = true; typeStep(); } }
@@ -3865,7 +4045,7 @@ WHERE name = 'Ben';</pre>
         if (heroFx && !RM){
           var fxRaf = null, kickFx;
           document.addEventListener("mousemove", function(e){
-            mTarget = (e.clientX / window.innerWidth - 0.5) * 14;
+            mTarget = (e.clientX / window.innerWidth - 0.5) * 18;
             if (kickFx) kickFx();
           }, { passive:true });
           function pLoop(){
@@ -3894,23 +4074,26 @@ WHERE name = 'Ben';</pre>
           kickFx();
         }
 
-        /* reveal on scroll (JS-gated: without JS everything is simply visible) */
-        if (!RM && "IntersectionObserver" in window){
+        /* reveal on scroll (JS-gated: without JS everything is simply visible).
+           Runs under reduced motion too — the CSS RM block turns the same
+           reveal into an opacity-only fade, so PCs whose OS reports
+           reduced motion still see the page come alive, just gently. */
+        if ("IntersectionObserver" in window){
           var rio = new IntersectionObserver(function(entries){
             entries.forEach(function(en){
               if (en.isIntersecting){
                 var el = en.target;
                 if (el.matches(".shelf-card, .err-card, .hw-step, .hw-card, .hw-cta, .rv-late") && el.parentElement){
                   var sibs = Array.prototype.filter.call(el.parentElement.children, function(n){ return n.classList.contains("rv"); });
-                  el.style.transitionDelay = (Math.min(sibs.indexOf(el), 5) * 60) + "ms";
+                  el.style.transitionDelay = (Math.min(sibs.indexOf(el), 5) * 70) + "ms";
                 }
                 el.classList.add("in");
                 rio.unobserve(el);
-                setTimeout(function(){ el.classList.remove("rv"); el.classList.remove("in"); el.style.transitionDelay = ""; }, 1150);
+                setTimeout(function(){ el.classList.remove("rv"); el.classList.remove("in"); el.style.transitionDelay = ""; }, 1450);
               }
             });
           }, { threshold: 0.06, rootMargin: "0px 0px 25% 0px" });
-          document.querySelectorAll(".module, .shelf-card, .err-card, .dir-group, .shelf-cat, .hw-step, .hw-card, .hw-cta, .rv-late").forEach(function(el){
+          document.querySelectorAll(".module, .shelf-card, .err-card, .dir-group, .shelf-cat, .hw-step, .hw-card, .hw-cta, .rv-late, .lesson-block .quiz").forEach(function(el){
             el.classList.add("rv");
             rio.observe(el);
           });
@@ -3933,14 +4116,14 @@ WHERE name = 'Ben';</pre>
             var key = el.getAttribute("data-stat");
             if (key && typeof statValues[key] === "number") el.textContent = String(statValues[key]);
           });
-          if (!RM && "IntersectionObserver" in window && "requestAnimationFrame" in window){
+          if ("IntersectionObserver" in window && "requestAnimationFrame" in window){
             var statDone = false;
             var statIO = new IntersectionObserver(function(entries){
               entries.forEach(function(en){
                 if (!en.isIntersecting || statDone) return;
                 statDone = true;
                 statIO.disconnect();
-                var startTs = null, dur = 1000;
+                var startTs = null, dur = 1300;
                 function statTick(ts){
                   if (startTs === null) startTs = ts;
                   var t = Math.min((ts - startTs) / dur, 1);
@@ -3960,7 +4143,7 @@ WHERE name = 'Ben';</pre>
 
         /* split-heading rise-in: words slide up with smooth easing, once per view */
         function playSplit(scope){
-          if (RM || !scope || !scope.querySelector) return;
+          if (!scope || !scope.querySelector) return;
           var h = scope.querySelector("h1");
           if (!h || h.getAttribute("data-split")) return;
           h.setAttribute("data-split", "1");
@@ -3970,7 +4153,7 @@ WHERE name = 'Ben';</pre>
             var outer = document.createElement("span"); outer.className = "sw";
             var inner = document.createElement("span"); inner.className = "swi";
             inner.textContent = w;
-            inner.style.transitionDelay = (i * 45) + "ms";
+            inner.style.transitionDelay = (i * 55) + "ms";
             outer.appendChild(inner);
             h.appendChild(outer);
             h.appendChild(document.createTextNode(" "));
@@ -3986,7 +4169,7 @@ WHERE name = 'Ben';</pre>
           document.querySelectorAll(".term, .shelf-card, .pick").forEach(function(el){
             var trx = 0, try_ = 0, crx = 0, cry = 0, raf = null;
             function loop(){
-              crx += (trx - crx) * 0.12; cry += (try_ - cry) * 0.12;
+              crx += (trx - crx) * 0.14; cry += (try_ - cry) * 0.14;
               el.style.transform = "perspective(900px) rotateX(" + crx.toFixed(2) + "deg) rotateY(" + cry.toFixed(2) + "deg)";
               if (Math.abs(trx - crx) > 0.02 || Math.abs(try_ - cry) > 0.02){ raf = requestAnimationFrame(loop); }
               else { raf = null; if (trx === 0 && try_ === 0) el.style.transform = ""; }
@@ -3994,8 +4177,8 @@ WHERE name = 'Ben';</pre>
             function kick(){ if (!raf) raf = requestAnimationFrame(loop); }
             el.addEventListener("mousemove", function(e){
               var r = el.getBoundingClientRect();
-              try_ = ((e.clientX - r.left) / r.width - 0.5) * 5;
-              trx = -((e.clientY - r.top) / r.height - 0.5) * 5;
+              try_ = ((e.clientX - r.left) / r.width - 0.5) * 6.5;
+              trx = -((e.clientY - r.top) / r.height - 0.5) * 6.5;
               kick();
             }, { passive:true });
             el.addEventListener("mouseleave", function(){ trx = 0; try_ = 0; kick(); });
@@ -4135,9 +4318,9 @@ WHERE name = 'Ben';</pre>
           bootEl.classList.remove("bye");
           bootEl.classList.add("show");
           spans.forEach(function(s, i){
-            bootLater(function(){ s.classList.add("on"); }, 120 + i * 190);
+            bootLater(function(){ s.classList.add("on"); }, 120 + i * 215);
           });
-          bootLater(endBoot, 120 + spans.length * 190 + 320);
+          bootLater(endBoot, 120 + spans.length * 215 + 380);
           bootLater(endBoot, 4000); /* safety: never trap the view */
         }
         if (bootEl){
